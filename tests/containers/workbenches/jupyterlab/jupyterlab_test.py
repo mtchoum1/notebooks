@@ -49,7 +49,7 @@ class TestJupyterLabImage:
             response = requests.get(f"http://{host_ip}:{host_port}/notebook/opendatahub/jovyan")
             assert response.status_code == 200
             assert "text/html" in response.headers["content-type"]
-            assert 'class="pf-v6-c-spinner"' in response.text
+            assert 'data-testid="loading-spinner-initial"' in response.text
         finally:
             docker_utils.NotebookContainer(container).stop(timeout=0)
 
