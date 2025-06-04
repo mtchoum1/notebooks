@@ -1,0 +1,77 @@
+---
+name: Notebooks Release
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Release tag for the notebooks release'
+        required: true
+        default: 'v1.30.0'
+      release_name:
+        description: 'Name of the release'
+        required: true
+        default: '2025a'
+      head_branch:
+        description: 'head branch for the release'
+        required: true
+        default: 'tmp-digest-sync-14488482962'
+      base_branch:
+        description: 'Base branch for the release'
+        required: true
+        default: 'test'
+    
+    pull_request:
+      branches:
+        - test
+      types: [closed]
+
+env:
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  RELEASE_TAG: ${{ github.event.inputs.tag }}
+  RELEASE_NAME: ${{ github.event.inputs.release_name }}
+  BASE_BRANCH: ${{ github.event.inputs.base_branch }}
+  HEAD_BRANCH: ${{ github.event.inputs.head_branch }}
+
+jobs:
+  create-pull-request:
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Create Target Branch
+        run: |
+          git checkout -b $BASE_BRANCH
+          git push origin $BASE_BRANCH
+      
+      - name: create pull request
+        run: |
+          gh pr create -B $BASE_BRANCH -H $HEAD_BRANCH --title "$PR_TITLE" --body "$PR_BODY"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_TITLE: "[Updater Action] Update Notebook and Runtime Images as well as the Commits With New SHAs"
+          PR_BODY: |
+            :rocket: This is an automated Pull Request.
+            Created by `/.github/workflows/notebooks-digest-updater.yaml`
+            - `manifests/base/params.env` file with the latest updated SHA digests of the notebooks.
+            - `manifests/base/runtime-*.yamls` file with the latest updated SHA digests of the runtimes.
+            - `manifests/base/commit.env` file with the latest commit.
+        
+  release:
+    name: Release Notebooks
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' && github.event.pull_request.merged == true && contains(github.event.pull_request.head.ref, 'tmp-digest-sync-')
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Invoke Script to handle creating a release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        working-directory: ${{env.GITHUB_WORKSPACE}}
+        run: |
+          gh release create "${{env.RELEASE_TAG}}" --title="${{env.RELEASE_NAME}}-${{env.RELEASE_TAG}}" --generate-notes
