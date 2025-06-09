@@ -120,4 +120,3 @@ jobs:
             Created by `/.github/workflows/update-buildconfigs.yaml`
             - `manifests/base/cuda-rstudio-buildconfig.yaml` File that points to the latest CUDA RStudio version
             - `manifests/base/rstudio-buildconfig.yaml` File that points to the latest RStudio version
-          
