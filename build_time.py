@@ -8,7 +8,7 @@ def run_podman_commands_repeated_build():
     tracking their execution times.
     """
     # Define the Dockerfile path relative to the script's location
-    dockerfile_path = "jupyter/datascience/ubi9-python-3.11/Dockerfile.cpu"
+    dockerfile_path = "jupyter/minimal/ubi9-python-3.11/Dockerfile.cpu"
 
     # Verify the Dockerfile exists before attempting to build
     if not os.path.exists(dockerfile_path):
@@ -20,7 +20,7 @@ def run_podman_commands_repeated_build():
     # Podman build command
     build_command = [
         "podman", "build",
-        "-t", "data-science",
+        "-t", "minimal",
         "-f", dockerfile_path,
         "."
     ]
