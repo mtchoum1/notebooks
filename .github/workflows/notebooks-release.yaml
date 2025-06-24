@@ -60,7 +60,12 @@ jobs:
   # 2. Check if the Manifest PR is merged      
   Manifests-merged:
     needs: Update-manifests
-    runs-on: ubuntu-latest
+    uses: mtchoum1/notebooks/.github/workflows/check-pr-merged.yaml@main
+    with:
+      repo_owner: ${{ env.REPO_OWNER }}
+      repo_name: ${{ env.REPO_NAME }}
+      pr_title: "[Updater Action] Update Notebook and Runtime Images as well as the Commits With New SHAs"
+      timeout_seconds: 600
     outputs:
       pr_merged_m: ${{ steps.check_pr.outputs.pr_merged_m }}
     steps:
