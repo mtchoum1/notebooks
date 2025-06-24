@@ -24,6 +24,7 @@ spec:
                   "datascience"
                 ],
                 "display_name": "Datascience with Python 3.11 (UBI9)",
+                "image_name": "quay.io/opendatahub/workbench-images@sha256:d206ea0c09b7e3eff7ce03d459e9d27b1564d0e4044a9d6138cd645e45593c17",
                 "pull_policy": "IfNotPresent"
               },
               "schema_name": "runtime-image"
@@ -32,7 +33,7 @@ spec:
         openshift.io/imported-from: quay.io/opendatahub/workbench-images
       from:
         kind: DockerImage
-        name: odh-pipeline-runtime-datascience-cpu-py311-ubi9-n_PLACEHOLDER
+        name: quay.io/opendatahub/workbench-images@sha256:d206ea0c09b7e3eff7ce03d459e9d27b1564d0e4044a9d6138cd645e45593c17
       name: "datascience"
       referencePolicy:
         type: Source

@@ -67,7 +67,6 @@ jobs:
   # 2. Check if the Manifest PR is merged
   Manifests-merged:
     needs: Update-manifests
-    runs-on: ubuntu-latest
     outputs:
       pr_merged_m: ${{ steps.check_pr.outputs.pr_merged }}
     steps:
