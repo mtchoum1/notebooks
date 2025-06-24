@@ -1,21 +1,22 @@
 ---
 name: 'Check PR Merged'
 description: 'Checks if a GitHub Pull Request with a specific title has been merged, with polling and timeout.'
-workflow_call:
-  inputs:
-    repo_owner:
-      description: 'The owner of the repository where the PR is located.'
-      required: true
-    repo_name:
-      description: 'The name of the repository where the PR is located.'
-      required: true
-    pr_title:
-      description: 'The exact title of the Pull Request to check for.'
-      required: true
-    timeout_seconds:
-      description: 'The maximum number of minutes to wait for the PR to be merged.'
-      required: false
-      default: '600' # Default to 5 hours (300 minutes)
+on:
+  workflow_call:
+    inputs:
+      repo_owner:
+        description: 'The owner of the repository where the PR is located.'
+        required: true
+      repo_name:
+        description: 'The name of the repository where the PR is located.'
+        required: true
+      pr_title:
+        description: 'The exact title of the Pull Request to check for.'
+        required: true
+      timeout_seconds:
+        description: 'The maximum number of minutes to wait for the PR to be merged.'
+        required: false
+        default: '600' # Default to 5 hours (300 minutes)
 
 env:
   GITHUB_TOKEN: ${{ github.token }} # Use the default GITHUB_TOKEN
