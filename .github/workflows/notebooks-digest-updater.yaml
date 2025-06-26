@@ -2,7 +2,7 @@
 # The aim of this GitHub workflow is to update the params.env and commit.env files
 # This GHA works for both orgs and it checks for the tags generated from the main branch.
 name: Update Notebook and Runtime Images as well as the Commits With New SHAs
-"on":  # yamllint disable-line rule:truthy
+on:  # yamllint disable-line rule:truthy
   workflow_dispatch:
     inputs:
       branch:
@@ -49,10 +49,10 @@ jobs:
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git config --global user.name "GitHub Actions"
 
-      # - name: Checkout branch
-      #   uses: actions/checkout@v4
-      #   with:
-      #     ref: ${{ env.BRANCH_NAME }}
+      - name: Checkout branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.BRANCH_NAME }}
 
       # - name: Create a new branch
       #   run: |

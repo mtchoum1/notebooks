@@ -1,3 +1,6 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
 PR_TITLE=$1
 REPO_OWNER=$2
 REPO_NAME=$3
@@ -6,11 +9,11 @@ REPO_NAME=$3
 PR_TITLE_ESCAPED=$(echo "$PR_TITLE" | sed 's/"/\\"/g') # Escape double quotes for jq
 
 #Fetch matching PRs
-PR_NUMBER=$(gh pr list --repo "$REPO_OWNER/$REPO_NAME" --state all --search "$PR_TITLE" --json number,title | jq -r '.[0].number')
+PR_NUMBER=$(gh pr list --repo "$REPO_OWNER/$REPO_NAME" --state all --search "$PR_TITLE_ESCAPED" --json number,title | jq -r '.[0].number')
 echo "PR Numbers: $PR_NUMBER"
 
-if [ -z "$PR_NUMBER" ]; then
-    echo "No PR found with title: $PR_TITLE"
+if [ -z "$PR_NUMBER" ] || [ "$PR_NUMBER" = "null" ]; then
+    echo "No PR found with title: $PR_TITLE_ESCAPED"
     exit 1
 fi
 
@@ -34,6 +37,6 @@ for (( i=1; i<=MAX_ATTEMPTS; i++ )); do
 done
 
 echo "Timed out waiting for PR #$PR_NUMBER to be merged."
-echo "pr_merged=true" >> $GITHUB_ENV
+echo "pr_merged=false" >> $GITHUB_ENV
 echo "pr_merged=false" >> $GITHUB_OUTPUT
 exit 1 

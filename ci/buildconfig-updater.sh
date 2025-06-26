@@ -1,31 +1,27 @@
 #!/bin/bash
 
-set -euo pipefail
-
-# Ensure at least one argument (file path) is provided
-if [[ $# -lt 1 ]]; then
-  echo "Usage: $0 <file_path> [version]" >&2
-  exit 1
-fi
-
 file_path=$1
 version=$2
 
+tmpfile=$(mktemp)
+trap 'rm -f "$tmpfile"' EXIT
+
 while IFS= read -r line; do
-    if [[ "$line" == *"ref: rhoai-"* ]]; then
+  if [[ "$line" == *"ref: rhoai-"* ]]; then
     if [[ -z "$version" ]]; then
-        # Auto-increment logic
-        numstr=${line#*2.}
-        num=$(expr "$numstr" + 1)
-        echo "      ref: rhoai-2.$num" >> tmp.yaml
+      # Auto-increment minor version
+      version_current="${line##*rhoai-}"
+      IFS='.' read -r major minor <<< "$version_current"
+      minor=$((minor + 1))
+      echo "      ref: rhoai-${major}.${minor}" >> "$tmpfile"
     else
-        # Use provided version
-        echo "      ref: rhoai-$version" >> tmp.yaml
+      # Use provided version
+      echo "      ref: rhoai-${version}" >> "$tmpfile"
     fi
-    else
-    echo "$line" >> tmp.yaml
-    fi
+  else
+    echo "$line" >> "$tmpfile"
+  fi
 done < "$file_path"
 
-cat tmp.yaml > "$file_path"
-rm tmp.yaml
+# Replace original file atomically
+mv "$tmpfile" "$file_path"
