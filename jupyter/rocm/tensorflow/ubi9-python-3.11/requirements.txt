@@ -5,7 +5,9 @@
 absl-py==2.3.0 ; sys_platform == 'linux' \
     --hash=sha256:9824a48b654a306168f63e0d97714665f8490b8d89ec7bf2efc24bf67cf579b3 \
     --hash=sha256:d96fda5c884f1b22178852f30ffa85766d50b99e00775ea626c23304f582fc4f
-    # via tensorboard
+    # via
+    #   tensorboard
+    #   tensorflow-cpu-aws
 aiohappyeyeballs==2.6.1 ; sys_platform == 'linux' \
     --hash=sha256:c3f9d0113123803ccadfdf3f0faa505bc78e6a72d1cc4806cbd719826e943558 \
     --hash=sha256:f349ba8f4b75cb25c99c5c2d84e997e485204d2902a9597802b0371f09331fb8
@@ -113,6 +115,10 @@ asttokens==3.0.0 ; sys_platform == 'linux' \
     --hash=sha256:0dcd8baa8d62b0c1d118b399b2ddba3c4aff271d0d7a9e0d4c1681c79035bbc7 \
     --hash=sha256:e3078351a059199dd5138cb1c706e6430c05eff2ff136af5eb4790f9d28932e2
     # via stack-data
+astunparse==1.6.3 ; sys_platform == 'linux' \
+    --hash=sha256:5ad93a8456f0d084c3456d059fd9a92cce667963232cbf763eac3bc5b7940872 \
+    --hash=sha256:c2652417f2c8b5bb325c885ae329bdf3f86424075c4fd1a128674bc6fba4b8e8
+    # via tensorflow-cpu-aws
 async-lru==2.0.5 ; sys_platform == 'linux' \
     --hash=sha256:481d52ccdd27275f42c43a928b4a50c3bfb2d67af4e78b170e3e0bb39c66e5bb \
     --hash=sha256:ab95404d8d2605310d345932697371a5f40def0487c03d6d0ad9138de52c9943
@@ -452,6 +458,10 @@ flake8==7.1.2 ; sys_platform == 'linux' \
     --hash=sha256:1cbc62e65536f65e6d754dfe6f1bada7f5cf392d6f5db3c2b85892466c3e7c1a \
     --hash=sha256:c586ffd0b41540951ae41af572e6790dbd49fc12b3aa2541685d253d9bd504bd
     # via python-lsp-server
+flatbuffers==25.2.10 ; sys_platform == 'linux' \
+    --hash=sha256:97e451377a41262f8d9bd4295cc836133415cc03d8cb966410a4af92eb00d26e \
+    --hash=sha256:ebba5f4d5ea615af3f7fd70fc310636fbb2bbd1f566ac0a23d98dd412de50051
+    # via tensorflow-cpu-aws
 fonttools==4.58.4 ; sys_platform == 'linux' \
     --hash=sha256:0c7a12fb6f769165547f00fcaa8d0df9517603ae7e04b625e5acb8639809b82d \
     --hash=sha256:2d42c63020a922154add0a326388a60a55504629edc3274bc273cd3806b4659f \
@@ -526,6 +536,10 @@ fsspec==2024.12.0 ; sys_platform == 'linux' \
     --hash=sha256:670700c977ed2fb51e0d9f9253177ed20cbde4a3e5c0283cc5385b5870c8533f \
     --hash=sha256:b520aed47ad9804237ff878b504267a3b0b441e97508bd6d2d8774e3db85cee2
     # via ray
+gast==0.6.0 ; sys_platform == 'linux' \
+    --hash=sha256:52b182313f7330389f72b069ba00f174cfe2a06411099547288839c6cbafbd54 \
+    --hash=sha256:88fc5300d32c7ac6ca7b515310862f71e6fdf2c029bbec7c66c0f5dd47b6b1fb
+    # via tensorflow-cpu-aws
 gitdb==4.0.12 ; sys_platform == 'linux' \
     --hash=sha256:5ef71f855d191a3326fcfbc0d5da835f26b13fbcba60c32c21091c349ffdb571 \
     --hash=sha256:67073e15955400952c6565cc3e707c554a4eea2e428946f7a4c162fab9bd9bcf
@@ -583,6 +597,10 @@ google-crc32c==1.7.1 ; sys_platform == 'linux' \
     # via
     #   google-cloud-storage
     #   google-resumable-media
+google-pasta==0.2.0 ; sys_platform == 'linux' \
+    --hash=sha256:b32482794a366b5366a32c92a9a9201b107821889935a02b3e51f6b432ea84ed \
+    --hash=sha256:c9f2c8dfc8f96d0d5808299920721be30c9eec37f2389f28904f454565c8a16e
+    # via tensorflow-cpu-aws
 google-resumable-media==2.7.2 ; sys_platform == 'linux' \
     --hash=sha256:3ce7551e9fe6d99e9a126101d2536612bb73486721951e9562fee0f90c6ababa \
     --hash=sha256:5280aed4629f2b60b847b0d42f9857fd4935c11af266744df33d8074cae92fe0
@@ -616,10 +634,24 @@ grpcio==1.73.1 ; sys_platform == 'linux' \
     # via
     #   ray
     #   tensorboard
+    #   tensorflow-cpu-aws
 h11==0.16.0 ; sys_platform == 'linux' \
     --hash=sha256:4e35b956cf45792e4caa5885e69fba00bdbc6ffafbfa020300e549b208ee5ff1 \
     --hash=sha256:63cf8bbe7522de3bf65932fda1d9c2772064ffb3dae62d55932da54b31cb6c86
     # via httpcore
+h5py==3.14.0 ; sys_platform == 'linux' \
+    --hash=sha256:0cbd41f4e3761f150aa5b662df991868ca533872c95467216f2bec5fcad84882 \
+    --hash=sha256:2372116b2e0d5d3e5e705b7f663f7c8d96fa79a4052d250484ef91d24d6a08f4 \
+    --hash=sha256:543877d7f3d8f8a9828ed5df6a0b78ca3d8846244b9702e99ed0d53610b583a8 \
+    --hash=sha256:554ef0ced3571366d4d383427c00c966c360e178b5fb5ee5bb31a435c424db0c \
+    --hash=sha256:6da62509b7e1d71a7d110478aa25d245dd32c8d9a1daee9d2a42dba8717b047a \
+    --hash=sha256:723a40ee6505bd354bfd26385f2dae7bbfa87655f4e61bab175a49d72ebfc06b \
+    --hash=sha256:8c497600c0496548810047257e36360ff551df8b59156d3a4181072eed47d8ad \
+    --hash=sha256:bf4897d67e613ecf5bdfbdab39a1158a64df105827da70ea1d90243d796d367f \
+    --hash=sha256:d2744b520440a996f2dae97f901caa8a953afc055db4673a993f2d87d7f38713 \
+    --hash=sha256:e0045115d83272090b0717c555a31398c2c089b87d212ceba800d3dc5d952e23 \
+    --hash=sha256:f30dbc58f2a0efeec6c8836c97f6c94afd769023f44e2bb0ed7b17a16ec46088
+    # via tensorflow-cpu-aws
 httpcore==1.0.9 ; sys_platform == 'linux' \
     --hash=sha256:2d400746a40668fc9dec9810239072b40b4484b640a8c38fd654a024c7a1bf55 \
     --hash=sha256:6e34463af53fd2ab5d807f399a9b45ea31c3dfa2276f15a2c3f00afff6e176e8
@@ -826,6 +858,10 @@ jupyterlab-widgets==3.0.15 ; sys_platform == 'linux' \
 kafka-python-ng==2.2.3 ; sys_platform == 'linux' \
     --hash=sha256:adc6e82147c441ca4ae1f22e291fc08efab0d10971cbd4aa1481d2ffa38e9480 \
     --hash=sha256:f79f28e10ade9b5a9860b2ec15b7cc8dc510d5702f5a399430478cff5f93a05a
+keras==2.14.0 ; sys_platform == 'linux' \
+    --hash=sha256:22788bdbc86d9988794fe9703bb5205141da797c4faeeb59497c58c3d94d34ed \
+    --hash=sha256:d7429d1d2131cc7eb1f2ea2ec330227c7d9d38dab3dfdf2e78defee4ecc43fcd
+    # via tensorflow-cpu-aws
 kfp==2.12.2 ; sys_platform == 'linux' \
     --hash=sha256:63a9bd900672346fcf0fa24a081d4f4f15eeab03e31ae505443015ae1bb6ee09
     # via
@@ -888,6 +924,18 @@ legacy-cgi==2.6.3 ; sys_platform == 'linux' \
     --hash=sha256:4c119d6cb8e9d8b6ad7cc0ddad880552c62df4029622835d06dfd18f438a8154 \
     --hash=sha256:6df2ea5ae14c71ef6f097f8b6372b44f6685283dc018535a75c924564183cdab
     # via appengine-python-standard
+libclang==18.1.1 ; sys_platform == 'linux' \
+    --hash=sha256:0b2e143f0fac830156feb56f9231ff8338c20aecfe72b4ffe96f19e5a1dbb69a \
+    --hash=sha256:3f0e1f49f04d3cd198985fea0511576b0aee16f9ff0e0f0cad7f9c57ec3c20e8 \
+    --hash=sha256:4dd2d3b82fab35e2bf9ca717d7b63ac990a3519c7e312f19fa8e86dcc712f7fb \
+    --hash=sha256:54dda940a4a0491a9d1532bf071ea3ef26e6dbaf03b5000ed94dd7174e8f9592 \
+    --hash=sha256:69f8eb8f65c279e765ffd28aaa7e9e364c776c17618af8bff22a8df58677ff4f \
+    --hash=sha256:6f14c3f194704e5d09769108f03185fce7acaf1d1ae4bbb2f30a72c2400cb7c5 \
+    --hash=sha256:83ce5045d101b669ac38e6da8e58765f12da2d3aafb3b9b98d88b286a60964d8 \
+    --hash=sha256:a1214966d08d73d971287fc3ead8dfaf82eb07fb197680d8b3859dbbbbf78250 \
+    --hash=sha256:c533091d8a3bbf7460a00cb6c1a71da93bffe148f172c7d03b1c31fbf8aa2a0b \
+    --hash=sha256:cf4a99b05376513717ab5d82a0db832c56ccea4fd61a69dbb7bccf2dfb207dbe
+    # via tensorflow-cpu-aws
 linkify-it-py==2.0.3 ; sys_platform == 'linux' \
     --hash=sha256:68cda27e162e9215c17d786649d1da0021a451bdc436ef9e0fa0ba5234b9b048 \
     --hash=sha256:6bcbc417b0ac14323382aef5c5192c0075bf8a9d6b41820a2b66371eac6b6d79
@@ -990,6 +1038,13 @@ mistune==3.1.3 ; sys_platform == 'linux' \
     --hash=sha256:1a32314113cff28aa6432e99e522677c8587fd83e3d51c29b82a52409c842bd9 \
     --hash=sha256:a7035c21782b2becb6be62f8f25d3df81ccb4d6fa477a6525b15af06539f02a0
     # via nbconvert
+ml-dtypes==0.2.0 ; sys_platform == 'linux' \
+    --hash=sha256:36d28b8861a8931695e5a31176cad5ae85f6504906650dea5598fbec06c94606 \
+    --hash=sha256:6488eb642acaaf08d8020f6de0a38acee7ac324c1e6e92ee0c0fea42422cb797 \
+    --hash=sha256:832a019a1b6db5c4422032ca9940a990fa104eee420f643713241b3a518977fa \
+    --hash=sha256:e70047ec2c83eaee01afdfdabee2c5b0c133804d90d0f7db4dd903360fcc537c \
+    --hash=sha256:e85ba8e24cf48d456e564688e981cf379d4c8e644db0a2f719b78de281bac2ca
+    # via tensorflow-cpu-aws
 mock==5.2.0 ; sys_platform == 'linux' \
     --hash=sha256:4e460e818629b4b173f32d08bf30d3af8123afbb8e04bb5707a1fd4799e503f0 \
     --hash=sha256:7ba87f72ca0e915175596069dbbcc7c75af7b5e9b9bc107ad6349ede0819982f
@@ -1153,7 +1208,9 @@ numpy==1.26.4 ; sys_platform == 'linux' \
     # via
     #   bokeh
     #   contourpy
+    #   h5py
     #   matplotlib
+    #   ml-dtypes
     #   onnx
     #   onnxconverter-common
     #   pandas
@@ -1162,6 +1219,7 @@ numpy==1.26.4 ; sys_platform == 'linux' \
     #   scikit-learn
     #   scipy
     #   tensorboard
+    #   tensorflow-cpu-aws
 oauthlib==3.2.2 ; sys_platform == 'linux' \
     --hash=sha256:8139f29aac13e25d502680e9e19963e83f16838d48a0d71c287fe40e7067fbca \
     --hash=sha256:9859c40929662bec5d64f34d01c99e093149682a3f38915dc0655d5a633dd918
@@ -1206,6 +1264,10 @@ openshift-client==1.0.18 ; sys_platform == 'linux' \
     # via codeflare-sdk
 openshift-python-wrapper==10.0.92 ; sys_platform == 'linux' \
     --hash=sha256:79c38045ec4c4b5e346134573814aebeaaa95bfb63c2ad5440bea4668c3a5610
+opt-einsum==3.4.0 ; sys_platform == 'linux' \
+    --hash=sha256:69bb92469f86a1565195ece4ac0323943e83477171b91d24c35afe028a90d7cd \
+    --hash=sha256:96ca72f1b886d148241348783498194c577fa30a8faac108586b14f1ba4473ac
+    # via tensorflow-cpu-aws
 overrides==7.7.0 ; sys_platform == 'linux' \
     --hash=sha256:55158fa3d93b98cc75299b1e67078ad9003ca27945c76162c1c0766d6f91820a \
     --hash=sha256:c7ed9d062f78b8e4c1a7b70bd8796b35ead4d9f510227ef9c5dc7626c60d7e49
@@ -1232,6 +1294,7 @@ packaging==23.2 ; sys_platform == 'linux' \
     #   pytest
     #   pytoolconfig
     #   ray
+    #   tensorflow-cpu-aws
 pandas==2.2.3 ; sys_platform == 'linux' \
     --hash=sha256:062309c1b9ea12a50e8ce661145c6aab431b1e99530d3cd60640e255778bd43a \
     --hash=sha256:29401dbfa9ad77319367d36940cd8a0b3a11aba16063e39632d98b0e931ddf32 \
@@ -1418,6 +1481,7 @@ protobuf==4.25.8 ; sys_platform == 'linux' \
     #   proto-plus
     #   ray
     #   tensorboard
+    #   tensorflow-cpu-aws
     #   tf2onnx
 psutil==5.9.8 ; sys_platform == 'linux' \
     --hash=sha256:6be126e3225486dff286a8fb9a06246a5253f4c7c53b475ea5f5ac934e64194c \
@@ -1970,6 +2034,7 @@ setuptools==75.8.2 ; sys_platform == 'linux' \
     #   kubeflow-training
     #   pbr
     #   tensorboard
+    #   tensorflow-cpu-aws
 simpervisor==1.0.0 ; sys_platform == 'linux' \
     --hash=sha256:3e313318264559beea3f475ead202bc1cd58a2f1288363abb5657d306c5b8388 \
     --hash=sha256:7eb87ca86d5e276976f5bb0290975a05d452c6a7b7f58062daea7d8369c823c1
@@ -1979,6 +2044,8 @@ six==1.17.0 ; sys_platform == 'linux' \
     --hash=sha256:ff70335d468e7eb6ec65b95b99d3a2836546063f63acc5171de367e834932a81
     # via
     #   appengine-python-standard
+    #   astunparse
+    #   google-pasta
     #   kfp-server-api
     #   kubeflow-training
     #   kubernetes
@@ -1988,6 +2055,7 @@ six==1.17.0 ; sys_platform == 'linux' \
     #   python-rrmngmnt
     #   rfc3339-validator
     #   tensorboard
+    #   tensorflow-cpu-aws
 skl2onnx==1.18.0 ; sys_platform == 'linux' \
     --hash=sha256:1345d8a1d3aa4a11abfbed4bc984b777023dad85e1c9fe4eb727cba5ee0fcaa8 \
     --hash=sha256:39ea4ae30c5c182355a1824467013158214444e0ce0b18f33338bd827d4fb00f
@@ -2025,15 +2093,36 @@ tenacity==9.1.2 ; sys_platform == 'linux' \
     # via papermill
 tensorboard==2.14.1 ; sys_platform == 'linux' \
     --hash=sha256:3db108fb58f023b6439880e177743c5f1e703e9eeb5fb7d597871f949f85fd58
+    # via tensorflow-cpu-aws
 tensorboard-data-server==0.7.2 ; sys_platform == 'linux' \
     --hash=sha256:7e0610d205889588983836ec05dc098e80f97b7e7bbff7e994ebb78f578d0ddb \
     --hash=sha256:9fe5d24221b29625dbc7328b0436ca7fc1c23de4acf4d272f1180856e32f9f60 \
     --hash=sha256:ef687163c24185ae9754ed5650eb5bc4d84ff257aabdc33f0cc6f74d8ba54530
     # via tensorboard
+tensorflow-cpu-aws==2.14.0 ; sys_platform == 'linux' \
+    --hash=sha256:497b400494fa693e8037fa0e2892714aecc257a5752a878b210b3a512b66668c
+    # via tensorflow-rocm
+tensorflow-estimator==2.14.0 ; sys_platform == 'linux' \
+    --hash=sha256:820bf57c24aa631abb1bbe4371739ed77edb11361d61381fd8e790115ac0fd57
+    # via tensorflow-cpu-aws
+tensorflow-io-gcs-filesystem==0.37.1 ; sys_platform == 'linux' \
+    --hash=sha256:286389a203a5aee1a4fa2e53718c661091aa5fea797ff4fa6715ab8436b02e6c \
+    --hash=sha256:32c50ab4e29a23c1f91cd0f9ab8c381a0ab10f45ef5c5252e94965916041737c \
+    --hash=sha256:6e1f2796b57e799a8ca1b75bf47c2aaa437c968408cc1a402a9862929e104cda \
+    --hash=sha256:b02f9c5f94fd62773954a04f69b68c4d576d076fd0db4ca25d5479f0fbfcdbad \
+    --hash=sha256:ee7c8ee5fe2fd8cb6392669ef16e71841133041fee8a330eff519ad9b36e4556 \
+    --hash=sha256:fbb33f1745f218464a59cecd9a18e32ca927b0f4d77abd8f8671b645cc1a182f \
+    --hash=sha256:fe8dcc6d222258a080ac3dfcaaaa347325ce36a7a046277f6b3e19abc1efb3c5 \
+    --hash=sha256:ffebb6666a7bfc28005f4fbbb111a455b5e7d6cd3b12752b7050863ecb27d5cc
+    # via tensorflow-cpu-aws
+tensorflow-rocm==2.14.0.600 ; sys_platform == 'linux' \
+    --hash=sha256:c9f3e6f81ea916d8a7481a3d59240867b36ead2ff5474e5ba233b2b598baf7fe
 termcolor==2.3.0 ; sys_platform == 'linux' \
     --hash=sha256:3afb05607b89aed0ffe25202399ee0867ad4d3cb4180d98aaf8eefa6a5f7d475 \
     --hash=sha256:b5b08f68937f138fe92f6c089b99f1e2da0ae56c52b78bf7075fd95420fd9a5a
-    # via yaspin
+    # via
+    #   tensorflow-cpu-aws
+    #   yaspin
 terminado==0.18.1 ; sys_platform == 'linux' \
     --hash=sha256:a4468e1b37bb318f8a86514f65814e1afc977cf29b3992a4500d9dd305dcceb0 \
     --hash=sha256:de09f2c4b85de4765f7714688fff57d3e75bad1f909b589fde880460c753fd2e
@@ -2139,6 +2228,7 @@ typing-extensions==4.12.2 ; sys_platform == 'linux' \
     #   pygithub
     #   pyright
     #   referencing
+    #   tensorflow-cpu-aws
     #   testcontainers
     #   textual
 tzdata==2025.2 ; sys_platform == 'linux' \
@@ -2252,39 +2342,29 @@ whatthepatch==1.0.7 ; sys_platform == 'linux' \
 wheel==0.45.1 ; sys_platform == 'linux' \
     --hash=sha256:661e1abd9198507b1409a20c02106d9670b2576e916d58f520316666abca6729 \
     --hash=sha256:708e7481cc80179af0e556bbf0cc00b8444c7321e2700b8d8580231d13017248
-    # via jupyter-packaging
+    # via
+    #   astunparse
+    #   jupyter-packaging
 widgetsnbextension==4.0.14 ; sys_platform == 'linux' \
     --hash=sha256:4875a9eaf72fbf5079dc372a51a9f268fc38d46f767cbf85c43a36da5cb9b575 \
     --hash=sha256:a3629b04e3edb893212df862038c7232f62973373869db5084aed739b437b5af
     # via ipywidgets
-wrapt==1.17.2 ; sys_platform == 'linux' \
-    --hash=sha256:0b929ac182f5ace000d459c59c2c9c33047e20e935f8e39371fa6e3b85d56f4a \
-    --hash=sha256:129a150f5c445165ff941fc02ee27df65940fcb8a22a61828b1853c98763a64b \
-    --hash=sha256:1a7ed2d9d039bd41e889f6fb9364554052ca21ce823580f6a07c4ec245c1f5d6 \
-    --hash=sha256:1fb5699e4464afe5c7e65fa51d4f99e0b2eadcc176e4aa33600a3df7801d6662 \
-    --hash=sha256:3fc7cb4c1c744f8c05cd5f9438a3caa6ab94ce8344e952d7c45a8ed59dd88392 \
-    --hash=sha256:41388e9d4d1522446fe79d3213196bd9e3b301a336965b9e27ca2788ebd122f3 \
-    --hash=sha256:468090021f391fe0056ad3e807e3d9034e0fd01adcd3bdfba977b6fdf4213ea9 \
-    --hash=sha256:4afd5814270fdf6380616b321fd31435a462019d834f83c8611a0ce7484c7317 \
-    --hash=sha256:4db983e7bca53819efdbd64590ee96c9213894272c776966ca6306b73e4affda \
-    --hash=sha256:5bb1d0dbf99411f3d871deb6faa9aabb9d4e744d67dcaaa05399af89d847a91d \
-    --hash=sha256:6d9187b01bebc3875bac9b087948a2bccefe464a7d8f627cf6e48b1bbae30f82 \
-    --hash=sha256:8fdbdb757d5390f7c675e558fd3186d590973244fab0c5fe63d373ade3e99d40 \
-    --hash=sha256:9a2bce789a5ea90e51a02dfcc39e31b7f1e662bc3317979aa7e5538e3a034f72 \
-    --hash=sha256:9abc77a4ce4c6f2a3168ff34b1da9b0f311a8f1cfd694ec96b0603dff1c79438 \
-    --hash=sha256:9e8659775f1adf02eb1e6f109751268e493c73716ca5761f8acb695e52a756ae \
-    --hash=sha256:acc130bc0375999da18e3d19e5a86403667ac0c4042a094fefb7eec8ebac7cf3 \
-    --hash=sha256:b18f2d1533a71f069c7f82d524a52599053d4c7166e9dd374ae2136b7f40f7c8 \
-    --hash=sha256:bc570b5f14a79734437cb7b0500376b6b791153314986074486e0b0fa8d71d98 \
-    --hash=sha256:d18a4865f46b8579d44e4fe1e2bcbc6472ad83d98e22a26c963d46e4c125ef0b \
-    --hash=sha256:d5e2439eecc762cd85e7bd37161d4714aa03a33c5ba884e26c81559817ca0925 \
-    --hash=sha256:e8b2816ebef96d83657b56306152a93909a83f23994f4b30ad4573b00bd11bb9 \
-    --hash=sha256:ec89ed91f2fa8e3f52ae53cd3cf640d6feff92ba90d62236a81e4e563ac0e991 \
-    --hash=sha256:f09b286faeff3c750a879d336fb6d8713206fc97af3adc14def0cdd349df6000 \
-    --hash=sha256:ff04ef6eec3eee8a5efef2401495967a916feaa353643defcc03fc74fe213b58
+wrapt==1.14.1 ; sys_platform == 'linux' \
+    --hash=sha256:2020f391008ef874c6d9e208b24f28e31bcb85ccff4f335f15a3251d222b92d9 \
+    --hash=sha256:240b1686f38ae665d1b15475966fe0472f78e71b1b4903c143a842659c8e4cb9 \
+    --hash=sha256:26046cd03936ae745a502abf44dac702a5e6880b2b01c29aea8ddf3353b68224 \
+    --hash=sha256:2feecf86e1f7a86517cab34ae6c2f081fd2d0dac860cb0c0ded96d799d20b335 \
+    --hash=sha256:358fe87cc899c6bb0ddc185bf3dbfa4ba646f05b1b0b9b5a27c2cb92c2cea204 \
+    --hash=sha256:380a85cf89e0e69b7cfbe2ea9f765f004ff419f34194018a6827ac0e3edfed4d \
+    --hash=sha256:49ef582b7a1152ae2766557f0550a9fcbf7bbd76f43fbdc94dd3bf07cc7168be \
+    --hash=sha256:6447e9f3ba72f8e2b985a1da758767698efa72723d5b59accefd716e9e8272bf \
+    --hash=sha256:a9008dad07d71f68487c91e96579c8567c98ca4c3881b9b113bc7b33e9fd78b8 \
+    --hash=sha256:acae32e13a4153809db37405f5eba5bac5fbe2e2ba61ab227926a22901051c0a \
+    --hash=sha256:ecee4132c6cd2ce5308e21672015ddfed1ff975ad0ac8d27168ea82e71413f55
     # via
     #   deprecated
     #   smart-open
+    #   tensorflow-cpu-aws
     #   testcontainers
 xmltodict==0.13.0 ; sys_platform == 'linux' \
     --hash=sha256:341595a488e3e01a85a9d8911d8912fd922ede5fecc4dce437eb4b6c8d037e56 \
