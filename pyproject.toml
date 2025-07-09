@@ -140,11 +140,13 @@ trustyai = [
 #########################
 
 jupyter-minimal-image = [
+    { include-group = "dev" },
     { include-group = "base" },
     { include-group = "jupyter-base" },
 ]
 
 jupyter-datascience-image = [
+    { include-group = "dev" },
     { include-group = "base" },
     { include-group = "jupyter-base" },
     { include-group = "elyra-base" },
@@ -155,6 +157,7 @@ jupyter-datascience-image = [
 ]
 
 jupyter-tensorflow-image = [
+    { include-group = "dev" },
     { include-group = "base" },
     { include-group = "jupyter-base" },
     { include-group = "elyra-base" },
@@ -166,6 +169,7 @@ jupyter-tensorflow-image = [
 ]
 
 jupyter-tensorflow-rocm-image = [
+    { include-group = "dev" },
     { include-group = "base" },
     { include-group = "jupyter-base" },
     { include-group = "elyra-base" },
@@ -177,6 +181,7 @@ jupyter-tensorflow-rocm-image = [
 ]
 
 jupyter-pytorch-image = [
+    { include-group = "dev" },
     { include-group = "base" },
     { include-group = "jupyter-base" },
     { include-group = "elyra-base" },
@@ -188,6 +193,7 @@ jupyter-pytorch-image = [
 ]
 
 jupyter-pytorch-rocm-image = [
+    { include-group = "dev" },
     { include-group = "base" },
     { include-group = "jupyter-base" },
     { include-group = "elyra-base" },
@@ -199,6 +205,7 @@ jupyter-pytorch-rocm-image = [
 ]
 
 jupyter-trustyai-image = [
+    { include-group = "dev" },
     { include-group = "base" },
     { include-group = "jupyter-base" },
     { include-group = "elyra-base" },
