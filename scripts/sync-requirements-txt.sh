@@ -21,7 +21,7 @@ while read -r file; do
     image_name="${image_name#*/}-rocm"
   fi
   
-  uv pip compile --format requirements.txt --python ${python_version} -o jupyter/${path} --generate-hashes --group jupyter-${image_name}-image -q
+  uv pip compile --format requirements.txt --python ${python_version} -o jupyter/${path} --generate-hashes --group jupyter-${image_name}-image --no-annotate --python-platform linux -q
 
 done < jupyter/files.txt
 
