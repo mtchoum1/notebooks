@@ -1025,7 +1025,7 @@ conflicts = [[
 [[manifest.dependency-metadata]]
 name = "tensorflow-rocm"
 version = "2.14.0.600"
-requires-dist = ["tensorflow-cpu-aws"]
+requires-dist = ["tensorflow-cpu-aws ; platform_machine != 'x86_64'", "tensorflow-estimator", "tensorflow-io-gcs-filesystem"]
 
 [[manifest.dependency-metadata]]
 name = "tf2onnx"
@@ -10900,7 +10900,9 @@ name = "tensorflow-rocm"
 version = "2.14.0.600"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "tensorflow-cpu-aws", marker = "sys_platform == 'linux'" },
+    { name = "tensorflow-cpu-aws", marker = "platform_machine != 'x86_64' and sys_platform == 'linux'" },
+    { name = "tensorflow-estimator", marker = "sys_platform == 'linux'" },
+    { name = "tensorflow-io-gcs-filesystem", marker = "sys_platform == 'linux'" },
 ]
 wheels = [
     { url = "https://files.pythonhosted.org/packages/fc/42/0e0b129a2b6ca22ad5c2cecd2e03fc1b3911914a75d2f38fc584e91aa71d/tensorflow_rocm-2.14.0.600-cp311-cp311-manylinux2014_x86_64.whl", hash = "sha256:c9f3e6f81ea916d8a7481a3d59240867b36ead2ff5474e5ba233b2b598baf7fe", size = 427111059, upload-time = "2024-01-10T14:33:54.623Z" },
