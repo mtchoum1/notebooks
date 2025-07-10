@@ -37,7 +37,7 @@ dev = [
 base = [
 
     "wheel~=0.45.1",
-    "setuptools~=~=78.1.1; python_version == '3.11'",
+    "setuptools~=78.1.1; python_version == '3.11'",
     "setuptools~=75.8.2; python_version == '3.12'",
 ]
 
@@ -76,16 +76,16 @@ db-connectors = [
 
 # onnxconverter-common ~=1.13.0 required for skl2onnx, as upgraded version is not compatible with protobuf
 datascience-base = [
-    "boto3 ~=1.37.8",
-    "kafka-python-ng ~=2.2.3",
-    "kfp ~=2.12.1",
-    "plotly ~=6.0.0",
-    "scipy ~=1.15.2",
-    "skl2onnx ~=1.18.0",
-    "onnxconverter-common ~=1.13.0",
-    "codeflare-sdk ~=0.29.0; python_version == '3.11'",
-    "codeflare-sdk ~=0.28.1; python_version == '3.12'",
-    "kubeflow-training ==1.9.0"
+    "boto3~=1.37.8",
+    "kafka-python-ng~=2.2.3",
+    "kfp~=2.12.1",
+    "plotly~=6.0.0",
+    "scipy~=1.15.2",
+    "skl2onnx~=1.18.0",
+    "onnxconverter-common~=1.13.0",
+    "codeflare-sdk~=0.29.0; python_version == '3.11'",
+    "codeflare-sdk~=0.28.1; python_version == '3.12'",
+    "kubeflow-training==1.9.0",
 ]
 
 datascience-preferred = [
