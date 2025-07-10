@@ -97,6 +97,8 @@ for i in $(seq 1 10); do
     total_image_size_mb=$(echo "${total_image_size_mb} + ${image_size_mb}" | bc)
     successful_runs=$((successful_runs + 1))
 
+    podman image prune --all
+
 done
 
 echo "-----------------------------------------------------" | tee -a "${LOG_FILE}"
