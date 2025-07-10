@@ -257,7 +257,7 @@ requires-dist = ["protobuf"]
 [[tool.uv.dependency-metadata]]
 name = "tensorflow-rocm"
 version = "2.14.0.600"
-requires-dist = ["tensorflow-cpu-aws"]
+requires-dist = ["tensorflow-cpu-aws; sys_platform != 'linux'"]
 
 [tool.uv]
 package = false
