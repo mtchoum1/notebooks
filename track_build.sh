@@ -52,10 +52,9 @@ for i in $(seq 1 10); do
     podman images
 
     # Retrieve image configuration metadata using skopeo.
-    image_metadata_config="$(skopeo inspect --retry-times 3 --config "docker-daemon:${BUILD_TAG}")" || {
-        echo "ERROR: Couldn't download image config metadata with skopeo tool for ${BUILD_TAG}!" | tee -a "${LOG_FILE}"
+    image_metadata_config="$(skopeo inspect --retry-times 3 --config "docker-daemon:localhost/${BUILD_TAG}")" || {
+        echo "ERROR: Couldn't download image config metadata with skopeo tool for localhost/${BUILD_TAG}!" | tee -a "${LOG_FILE}"
         echo "${i},${build_duration_raw},ERROR_SKOPEO,ERROR_SKOPEO" | tee -a "${LOG_FILE}"
-        continue # Skip to the next iteration if skopeo fails
     }
 
     # Extract the 'created' timestamp from the image metadata.
@@ -64,9 +63,8 @@ for i in $(seq 1 10); do
         image_created="N/A" # Set to N/A if parsing fails, but don't stop the run
     }
 
-    # Retrieve raw image metadata for size calculation.
-    image_metadata="$(skopeo inspect --retry-times 3 --raw "docker-daemon:${BUILD_TAG}")" || {
-        echo "ERROR: Couldn't download raw image metadata with skopeo tool for ${BUILD_TAG}!" | tee -a "${LOG_FILE}"
+    image_metadata="$(skopeo inspect --retry-times 3 --raw "docker-daemon:localhost/${BUILD_TAG}")" || {
+        echo "ERROR: Couldn't download raw image metadata with skopeo tool for localhost/${BUILD_TAG}!" | tee -a "${LOG_FILE}"
         echo "${i},${build_duration_raw},ERROR_SKOPEO_RAW,${image_created}" | tee -a "${LOG_FILE}"
         continue
     }
