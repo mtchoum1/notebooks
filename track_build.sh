@@ -34,13 +34,14 @@ for i in $(seq 1 10); do
 
     BUILD_TAG="${IMAGE_NAME}:test_run_${i}" # Unique tag for each build
 
+    TIMEFORMAT=%R
+
     # Use `time` to measure the execution duration of the podman build command.
     build_duration_raw=$( { time -p podman build \
         --no-cache \
-        -q \
         -t "${BUILD_TAG}" \
         --platform linux/amd64 \
-        -f "${DOCKERFILE_PATH}" . ; } 2>&1 | awk '/real/ {print $2}' )
+        -f "${DOCKERFILE_PATH}" . ;} 2>&1 | awk '/real/ {print $2}' )
 
     # Check if the podman build command was successful
     if [ $? -ne 0 ]; then
@@ -97,8 +98,6 @@ for i in $(seq 1 10); do
     total_image_size_mb=$(echo "${total_image_size_mb} + ${image_size_mb}" | bc)
     successful_runs=$((successful_runs + 1))
 
-    podman image prune --all
-
 done
 
 echo "-----------------------------------------------------" | tee -a "${LOG_FILE}"
@@ -120,5 +119,5 @@ fi
 
 # Prune all unused images to clean up.
 echo "Pruning all unused images..."
-podman image prune --all
+podman image prune --all -f
 echo "Cleanup complete."
