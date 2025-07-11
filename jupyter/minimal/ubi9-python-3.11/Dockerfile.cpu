@@ -16,7 +16,7 @@ COPY ${MINIMAL_SOURCE_CODE}/requirements.txt ${MINIMAL_SOURCE_CODE}/start-notebo
 
 # Install Python dependencies from Pipfile.lock file
 RUN echo "Installing softwares and packages" && \
-    uv pip install -r requirements.txt && \
+    uv pip install --no-deps -r requirements.txt && \
     rm -f ./requirements.txt
 
 WORKDIR /opt/app-root/src

@@ -8,14 +8,12 @@ if [ -z "$1" ]; then
 fi
 
 IMAGE_NAME="${1}"
-BUILD_TYPE="${2}"
-DOCKERFILE_PATH="jupyter/${IMAGE_NAME}/ubi9-python-3.11/Dockerfile.${BUILD_TYPE}" # Assuming Dockerfile.cpu is in the current directory or a subdirectory
+DOCKERFILE_PATH="jupyter/${IMAGE_NAME}/ubi9-python-3.11/Dockerfile.cpu" # Assuming Dockerfile.cpu is in the current directory or a subdirectory
 
 # --- Log File Setup ---
 LOG_DIR="./build_logs"
 mkdir -p "${LOG_DIR}" # Create log directory if it doesn't exist
-TIMESTAMP=$(date +"%Y-%m-%d_%H%M%S")
-LOG_FILE="${LOG_DIR}/build_log_${IMAGE_NAME}_${TIMESTAMP}.txt"
+LOG_FILE="${LOG_DIR}/build_log_${IMAGE_NAME}.txt"
 
 # --- Variables for Averages ---
 total_build_time=0.0

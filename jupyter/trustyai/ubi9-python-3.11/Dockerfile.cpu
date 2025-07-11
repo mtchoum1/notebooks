@@ -14,5 +14,5 @@ ARG TRUSTYAI_SOURCE_CODE=jupyter/trustyai/ubi9-python-3.11
 COPY ${TRUSTYAI_SOURCE_CODE}/requirements.txt ./
 
 RUN echo "Installing softwares and packages" && \
-    uv pip install -r requirements.txt && \
+    uv pip install --no-deps -r requirements.txt && \
     rm -f ./requirements.txt
