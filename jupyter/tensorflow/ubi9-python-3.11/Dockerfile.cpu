@@ -1,18 +1,20 @@
 FROM registry.access.redhat.com/ubi9/python-311:latest AS base
 
+WORKDIR /opt/app-root/bin
+
 # Other apps and tools installed as default user
 USER 1001
 
 # Install micropipenv to deploy packages from Pipfile.lock
-RUN pip install --no-cache-dir -U "micropipenv[toml]"
+RUN pip install --no-cache-dir -U uv
 
-ARG DATASCIENCE_SOURCE_CODE=jupyter/datascience/ubi9-python-3.11
+ARG TENSORFLOW_SOURCE_CODE=jupyter/tensorflow/ubi9-python-3.11
 
 # Install Python packages and Jupyterlab extensions from Pipfile.lock
-COPY ${DATASCIENCE_SOURCE_CODE}/Pipfile.lock ./
+COPY ${TENSORFLOW_SOURCE_CODE}/requirements.txt ./
 
 RUN echo "Installing softwares and packages" && \
-    micropipenv install && \
-    rm -f ./Pipfile.lock
+    uv pip install --no-deps -r requirements.txt && \
+    rm -f ./requirements.txt
 
 WORKDIR /opt/app-root/src
