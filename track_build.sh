@@ -35,7 +35,7 @@ for i in $(seq 1 10); do
     TIMEFORMAT=%R
 
     # Use `time` to measure the execution duration of the podman build command.
-    build_duration_raw=$( { time -p podman build \
+    build_duration_raw=$( { time podman build \
         --no-cache \
         -t "${BUILD_TAG}" \
         --platform linux/amd64 \
