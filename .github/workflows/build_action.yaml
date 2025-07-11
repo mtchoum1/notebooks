@@ -31,13 +31,14 @@ jobs:
           git config user.name "GitHub Actions"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-      - name: 'Set up skopeo'
-        uses: warjiang/setup-skopeo@main
-        with:
-          version: latest
+      - name: Install Podman and Skopeo
+        run: |
+          sudo apt-get update
+          sudo apt-get -y install podman skopeo
 
-      - name: 'Set up Podman'
-        uses: gacts/install-podman@v1
+      - name: Install jq and bc (usually pre-installed, but good to ensure)
+        run: |
+          sudo apt-get -y install jq bc
 
       - name: Create Target Branch
         env:
