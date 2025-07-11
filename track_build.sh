@@ -49,7 +49,6 @@ for i in $(seq 1 10); do
     fi
 
     echo "Podman build ${i} completed. Retrieving image metadata..."
-    podman images
 
     # Retrieve image configuration metadata using skopeo.
     image_metadata_config="$(skopeo inspect --retry-times 3 --config "docker-daemon:localhost/${BUILD_TAG}")" || {
