@@ -31,6 +31,14 @@ jobs:
           git config user.name "GitHub Actions"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
+      - name: 'Set up skopeo'
+        uses: warjiang/setup-skopeo@main
+        with:
+          version: latest
+
+      - name: 'Set up Podman'
+        uses: gacts/install-podman@v1
+
       - name: Create Target Branch
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
