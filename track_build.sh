@@ -50,32 +50,25 @@ for i in $(seq 1 10); do
 
     echo "Podman build ${i} completed. Retrieving image metadata..."
 
-    # Extract the 'created' timestamp from the image metadata.
-    image_created=$(podman inspect --format "{{.Created}}" "${BUILD_TAG}") || {
-        echo "ERROR: Couldn't parse '.created' from image metadata for ${BUILD_TAG}!" | tee -a "${LOG_FILE}"
-        image_created="N/A" # Set to N/A if parsing fails, but don't stop the run
-    }
-
     # Calculate total image size by summing up layer sizes.
     image_size=$(podman image inspect --format "{{.Size}}" "${BUILD_TAG}") ||  {
         echo "ERROR: Couldn't count image size from image metadata for ${BUILD_TAG}!" | tee -a "${LOG_FILE}"
-        echo "${i},${build_duration_raw},ERROR_JQ_SIZE,${image_created}" | tee -a "${LOG_FILE}"
+        echo "${i},${build_duration_raw},ERROR_JQ_SIZE" | tee -a "${LOG_FILE}"
         continue
     }
 
     # Convert image size from bytes to megabytes using bc for floating-point precision.
     image_size_mb=$(echo "scale=2; ${image_size} / 1024 / 1024" | bc) ||  {
         echo "ERROR: Couldn't calculate image size in MB for ${BUILD_TAG}!" | tee -a "${LOG_FILE}"
-        echo "${i},${build_duration_raw},ERROR_CALC_MB,${image_created}" | tee -a "${LOG_FILE}"
+        echo "${i},${build_duration_raw},ERROR_CALC_MB | tee -a "${LOG_FILE}"
         continue
     }
 
     echo "  Build Duration: ${build_duration_raw} seconds"
     echo "  Image Size: ${image_size_mb} MB"
-    echo "  Image Created (metadata): ${image_created}"
 
     # Log the results
-    echo "${i},${build_duration_raw},${image_size_mb},${image_created}" | tee -a "${LOG_FILE}"
+    echo "${i},${build_duration_raw},${image_size_mb} | tee -a "${LOG_FILE}"
 
     # Add to totals for average calculation
     total_build_time=$(echo "${total_build_time} + ${build_duration_raw}" | bc)
