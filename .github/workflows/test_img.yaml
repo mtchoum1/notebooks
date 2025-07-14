@@ -1,0 +1,83 @@
+---
+name: Runs Builds Action
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: "Provide branch name"
+        required: true
+        type: string
+        default: "main"
+
+env:
+  TMP_BRANCH: tmp-verify-${{ github.run_id }}
+  BRANCH: ${{ inputs.branch }}
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Configure Git
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Install Podman
+        run: |
+          sudo apt-get update
+          sudo apt-get -y install podman
+
+      - name: Install jq and bc (usually pre-installed, but good to ensure)
+        run: |
+          sudo apt-get -y install jq bc
+
+      - name: Create Target Branch
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        working-directory: ${{env.GITHUB_WORKSPACE}}
+        run: |
+          git checkout -b "$TMP_BRANCH"
+          git push --set-upstream origin "$TMP_BRANCH"
+
+      - name: 
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        working-directory: ${{env.GITHUB_WORKSPACE}}
+        run: |
+          for image in "datascience" "minimal" "pytorch" "tensorflow" "trustyai"; do
+            bash ./track_build.sh "$image"
+          done
+      
+      - name: Add Files and Commit Changes
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        working-directory: ${{env.GITHUB_WORKSPACE}}
+        run: |
+          git add "${GITHUB_WORKSPACE}/build_logs/*.txt
+          git commit -m "Logs of the test runs"
+          git push origin "$TMP_BRANCH"
+
+      - name: Create Pull Request
+        run: |
+          gh pr create -B $BRANCH -H "$TMP_BRANCH" --title "$PR_TITLE" --body "$PR_BODY"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_TITLE: "Run Logs"
+          PR_BODY: |
+            :rocket: This is an automated Pull Request.
+            Created by `/.github/workflows/build_action.yaml`
+            - Logs were updated for the following images:
+              - datascience
+              - minimal
+              - pytorch
+              - tensorflow
+              - trustyai
