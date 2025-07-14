@@ -10,7 +10,7 @@ on:
         default: "main"
 
 env:
-  TMP_BRANCH: tmp-verify-${{ github.run_id }}
+  TMP_BRANCH: tmp-img-${{ github.run_id }}
   BRANCH: ${{ inputs.branch }}
 
 permissions:
@@ -31,6 +31,14 @@ jobs:
           git config user.name "GitHub Actions"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
+      - name: Create Target Branch
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        working-directory: ${{env.GITHUB_WORKSPACE}}
+        run: |
+          git checkout -b "$TMP_BRANCH"
+          git push --set-upstream origin "$TMP_BRANCH"
+
       - name: Install Podman
         run: |
           sudo apt-get update
@@ -40,20 +48,12 @@ jobs:
         run: |
           sudo apt-get -y install jq bc
 
-      - name: Create Target Branch
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        working-directory: ${{env.GITHUB_WORKSPACE}}
-        run: |
-          git checkout -b "$TMP_BRANCH"
-          git push --set-upstream origin "$TMP_BRANCH"
-
       - name: 
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         working-directory: ${{env.GITHUB_WORKSPACE}}
         run: |
-          for image in "datascience" "minimal" "pytorch" "tensorflow" "trustyai"; do
+          for image in "minimal" "datascience" "pytorch" "tensorflow" "trustyai"; do
             bash ./track_build.sh "$image"
           done
       
