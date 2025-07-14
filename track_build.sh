@@ -35,7 +35,7 @@ for i in $(seq 1 10); do
     TIMEFORMAT=%R
 
     # Use `time` to measure the execution duration of the podman build command.
-    build_duration_raw=$( { time podman build \
+    build_duration_raw=$( { time -p podman build \
         --no-cache \
         -t "${BUILD_TAG}" \
         --platform linux/amd64 \
@@ -50,28 +50,14 @@ for i in $(seq 1 10); do
 
     echo "Podman build ${i} completed. Retrieving image metadata..."
 
-    # Retrieve image configuration metadata using skopeo.
-    image_metadata_config="$(skopeo inspect --retry-times 3 --config "docker-daemon:${BUILD_TAG}")" || {
-        echo "ERROR: Couldn't download image config metadata with skopeo tool for ${BUILD_TAG}!" | tee -a "${LOG_FILE}"
-        echo "${i},${build_duration_raw},ERROR_SKOPEO,ERROR_SKOPEO" | tee -a "${LOG_FILE}"
-        continue # Skip to the next iteration if skopeo fails
-    }
-
     # Extract the 'created' timestamp from the image metadata.
-    image_created=$(echo "${image_metadata_config}" | jq --exit-status --raw-output '.created') || {
+    image_created=$(podman inspect --format "{{.Created}}" "${BUILD_TAG}") || {
         echo "ERROR: Couldn't parse '.created' from image metadata for ${BUILD_TAG}!" | tee -a "${LOG_FILE}"
         image_created="N/A" # Set to N/A if parsing fails, but don't stop the run
     }
 
-    # Retrieve raw image metadata for size calculation.
-    image_metadata="$(skopeo inspect --retry-times 3 --raw "docker-daemon:${BUILD_TAG}")" || {
-        echo "ERROR: Couldn't download raw image metadata with skopeo tool for ${BUILD_TAG}!" | tee -a "${LOG_FILE}"
-        echo "${i},${build_duration_raw},ERROR_SKOPEO_RAW,${image_created}" | tee -a "${LOG_FILE}"
-        continue
-    }
-
     # Calculate total image size by summing up layer sizes.
-    image_size=$(echo "${image_metadata}" | jq --exit-status '[ .layers[].size ] | add') ||  {
+    image_size=$(podman image inspect --format "{{.Size}}" "${BUILD_TAG}") ||  {
         echo "ERROR: Couldn't count image size from image metadata for ${BUILD_TAG}!" | tee -a "${LOG_FILE}"
         echo "${i},${build_duration_raw},ERROR_JQ_SIZE,${image_created}" | tee -a "${LOG_FILE}"
         continue
