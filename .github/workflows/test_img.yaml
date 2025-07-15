@@ -62,7 +62,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         working-directory: ${{env.GITHUB_WORKSPACE}}
         run: |
-          git add "${GITHUB_WORKSPACE}/build_logs/*.txt
+          git add "${GITHUB_WORKSPACE}/build_logs/*.txt"
           git commit -m "Logs of the test runs"
           git push origin "$TMP_BRANCH"
 
