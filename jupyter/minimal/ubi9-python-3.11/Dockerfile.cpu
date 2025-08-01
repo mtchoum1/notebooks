@@ -47,14 +47,6 @@ COPY ${JUPYTER_REUSABLE_UTILS} utils/
 
 USER 0
 
-RUN git clone https://github.com/edina/nb_empty_trash.git
-
-RUN pip install git+git://github.com/edina/nb_empty_trash.git#egg=nb_empty_trash
-
-RUN jupyter nbextension install --sys-prefix --py empty_trash \
-    && jupyter nbextension enable empty_trash --py --sys-prefix \
-    && jupyter serverextension enable --py empty_trash --sys-prefix
-
 # Dependencies for PDF export
 # RUN ./utils/install_pdf_deps.sh
 # ENV PATH="/usr/local/texlive/bin/linux:/usr/local/pandoc/bin:$PATH"
@@ -78,6 +70,20 @@ RUN echo "Installing softwares and packages" && \
     fix-permissions /opt/app-root -P && \
     # Apply JupyterLab addons \
     /opt/app-root/bin/utils/addons/apply.sh
+
+
+USER 0
+
+RUN git clone https://github.com/edina/nb_empty_trash.git
+
+RUN pip install ./nb_empty_trash \
+    && rm -rf nb_empty_trash
+
+RUN jupyter nbextension install --sys-prefix --py empty_trash \
+    && jupyter nbextension enable empty_trash --py --sys-prefix \
+    && jupyter server extension enable --py empty_trash --sys-prefix
+
+USER 1001
 
 WORKDIR /opt/app-root/src
 

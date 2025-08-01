@@ -15,7 +15,8 @@ nbdime = "~=4.0.2"
 nbgitpuller = "~=1.2.2"
 wheel = "~=0.45.1"
 setuptools = "~=78.1.1"
-notebook = "*"
+notebook = "~=6.4.12"
+jupyter-contrib-nbextensions = "*"
 
 [requires]
 python_version = "3.11"
