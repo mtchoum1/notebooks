@@ -34,8 +34,8 @@ dependencies = [
     "odh-notebooks-meta-runtime-elyra-deps",
 
     # Base packages
-    "setuptools~=80.9.0",
-    "wheel~=0.45.1",
+    "setuptools==80.9.0",
+    "wheel==0.45.1",
 ]
 
 [tool.uv]
