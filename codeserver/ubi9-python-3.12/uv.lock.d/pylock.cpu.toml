@@ -42,15 +42,15 @@ wheels = [{ url = "https://console.redhat.com/api/pulp-content/public-rhai/rhoai
 
 [[packages]]
 name = "boto3"
-version = "1.42.29"
+version = "1.42.36"
 marker = "implementation_name == 'cpython' and sys_platform == 'linux'"
-wheels = [{ url = "https://console.redhat.com/api/pulp-content/public-rhai/rhoai/3.3/cpu-ubi9/boto3-1.42.29-2-py3-none-any.whl", hashes = { sha256 = "271d7eea8375d6ca4dd85622c6db4f6bafd0cc4254b9b4b80c7597e61809c307" } }]
+wheels = [{ url = "https://console.redhat.com/api/pulp-content/public-rhai/rhoai/3.3/cpu-ubi9/boto3-1.42.36-2-py3-none-any.whl", hashes = { sha256 = "a250f2dfa5a249dd0499c80330e0260d91fb1c5f80b041261e7d50832e70a879" } }]
 
 [[packages]]
 name = "botocore"
-version = "1.42.29"
+version = "1.42.36"
 marker = "implementation_name == 'cpython' and sys_platform == 'linux'"
-wheels = [{ url = "https://console.redhat.com/api/pulp-content/public-rhai/rhoai/3.3/cpu-ubi9/botocore-1.42.29-2-py3-none-any.whl", hashes = { sha256 = "2f2f5abd2f09d401368331638cf7005af295edd37ebd57ff8a081def1ab40538" } }]
+wheels = [{ url = "https://console.redhat.com/api/pulp-content/public-rhai/rhoai/3.3/cpu-ubi9/botocore-1.42.36-2-py3-none-any.whl", hashes = { sha256 = "2dfbeedf06c93c6b19344edf2d50a0c8c602e21db9d920984611c8047c3ba19f" } }]
 
 [[packages]]
 name = "certifi"
@@ -301,9 +301,9 @@ wheels = [{ url = "https://console.redhat.com/api/pulp-content/public-rhai/rhoai
 
 [[packages]]
 name = "jmespath"
-version = "1.0.1"
+version = "1.1.0"
 marker = "implementation_name == 'cpython' and sys_platform == 'linux'"
-wheels = [{ url = "https://console.redhat.com/api/pulp-content/public-rhai/rhoai/3.3/cpu-ubi9/jmespath-1.0.1-2-py3-none-any.whl", hashes = { sha256 = "ac1c9fee7ce0a3af45e6d3204a06022b32fa0ed97505c8c0089e78b6d38f651e" } }]
+wheels = [{ url = "https://console.redhat.com/api/pulp-content/public-rhai/rhoai/3.3/cpu-ubi9/jmespath-1.1.0-2-py3-none-any.whl", hashes = { sha256 = "19c993542f0d2fd5e0e8bfedad30fa6ff1f3f0221f75b6450af0c984e3f2a506" } }]
 
 [[packages]]
 name = "joblib"
@@ -525,9 +525,9 @@ wheels = [{ url = "https://console.redhat.com/api/pulp-content/public-rhai/rhoai
 
 [[packages]]
 name = "packaging"
-version = "25.0"
+version = "26.0"
 marker = "implementation_name == 'cpython' and sys_platform == 'linux'"
-wheels = [{ url = "https://console.redhat.com/api/pulp-content/public-rhai/rhoai/3.3/cpu-ubi9/packaging-25.0-2-py3-none-any.whl", hashes = { sha256 = "2fc032cd32dd97facb902fb89f41e1e984e792d9dbe5d29d8e2713b56a0026b1" } }]
+wheels = [{ url = "https://console.redhat.com/api/pulp-content/public-rhai/rhoai/3.3/cpu-ubi9/packaging-26.0-2-py3-none-any.whl", hashes = { sha256 = "4e4d463e366772479222863a8ff3bb307310faee4da6256c6c39641c207b1a44" } }]
 
 [[packages]]
 name = "pandas"
@@ -554,9 +554,9 @@ wheels = [{ url = "https://console.redhat.com/api/pulp-content/public-rhai/rhoai
 
 [[packages]]
 name = "pathspec"
-version = "1.0.3"
+version = "1.0.4"
 marker = "implementation_name == 'cpython' and sys_platform == 'linux'"
-wheels = [{ url = "https://console.redhat.com/api/pulp-content/public-rhai/rhoai/3.3/cpu-ubi9/pathspec-1.0.3-2-py3-none-any.whl", hashes = { sha256 = "7d961dd6dd7127641698015562acf664516c0a33a0152ae04c807ff8d5e69496" } }]
+wheels = [{ url = "https://console.redhat.com/api/pulp-content/public-rhai/rhoai/3.3/cpu-ubi9/pathspec-1.0.4-2-py3-none-any.whl", hashes = { sha256 = "5a320db37ee3a158eea2afd2613278f81c08417db2f839b20c4b59f09018a3cb" } }]
 
 [[packages]]
 name = "pexpect"
@@ -702,9 +702,9 @@ wheels = [{ url = "https://console.redhat.com/api/pulp-content/public-rhai/rhoai
 
 [[packages]]
 name = "pyparsing"
-version = "3.3.1"
+version = "3.3.2"
 marker = "implementation_name == 'cpython' and sys_platform == 'linux'"
-wheels = [{ url = "https://console.redhat.com/api/pulp-content/public-rhai/rhoai/3.3/cpu-ubi9/pyparsing-3.3.1-2-py3-none-any.whl", hashes = { sha256 = "9e189216a26d479669e2919f04a796955083ec135079998865ab89ad7a691384" } }]
+wheels = [{ url = "https://console.redhat.com/api/pulp-content/public-rhai/rhoai/3.3/cpu-ubi9/pyparsing-3.3.2-2-py3-none-any.whl", hashes = { sha256 = "eca06d670a1f1a40830b0960b0b2eb8d1ce953681cf7f89ccd2bc444c13bd2ef" } }]
 
 [[packages]]
 name = "python-dateutil"

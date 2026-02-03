@@ -205,9 +205,9 @@ wheels = [{ url = "https://console.redhat.com/api/pulp-content/public-rhai/rhoai
 
 [[packages]]
 name = "jsonschema"
-version = "4.25.1"
+version = "4.26.0"
 marker = "implementation_name == 'cpython' and sys_platform == 'linux'"
-wheels = [{ url = "https://console.redhat.com/api/pulp-content/public-rhai/rhoai/3.3/cpu-ubi9/jsonschema-4.25.1-2-py3-none-any.whl", hashes = { sha256 = "6fcafc5ee1a40e753881a47089ced86b10783c13d2ccfe21dfeb59b2cfa9070a" } }]
+wheels = [{ url = "https://console.redhat.com/api/pulp-content/public-rhai/rhoai/3.3/cpu-ubi9/jsonschema-4.26.0-2-py3-none-any.whl", hashes = { sha256 = "e05f7d4fd2b5ebc8243d9df2ba14a12abdca7bec6b67f34fc5e435982f7f1991" } }]
 
 [[packages]]
 name = "jsonschema-specifications"
@@ -264,13 +264,11 @@ wheels = [{ url = "https://console.redhat.com/api/pulp-content/public-rhai/rhoai
 
 [[packages]]
 name = "multidict"
-version = "6.7.0"
+version = "6.7.1"
 marker = "python_full_version == '3.12.*' and implementation_name == 'cpython' and sys_platform == 'linux'"
 wheels = [
-    { url = "https://console.redhat.com/api/pulp-content/public-rhai/rhoai/3.3/cpu-ubi9/multidict-6.7.0-2-cp312-cp312-linux_aarch64.whl", hashes = { sha256 = "c6df32a6b9a110d99de327ab14b2f6f633908f167a723290c56fe6c3386afb00" } },
-    { url = "https://console.redhat.com/api/pulp-content/public-rhai/rhoai/3.3/cpu-ubi9/multidict-6.7.0-2-cp312-cp312-linux_ppc64le.whl", hashes = { sha256 = "63a8fdc879bbfca411a1eb416b71ea32d5ce4c0e1618b2f7c90a6277dedaf8b1" } },
-    { url = "https://console.redhat.com/api/pulp-content/public-rhai/rhoai/3.3/cpu-ubi9/multidict-6.7.0-2-cp312-cp312-linux_s390x.whl", hashes = { sha256 = "ebf39b72dd84e4d1a8ed3816e5ab5879ce5fff8cf57b1859382bf81e93d17782" } },
-    { url = "https://console.redhat.com/api/pulp-content/public-rhai/rhoai/3.3/cpu-ubi9/multidict-6.7.0-2-cp312-cp312-linux_x86_64.whl", hashes = { sha256 = "5513c6c59e006e703e594630042534d1bd649297d1c86a1f73b955eb6cfcf67e" } },
+    { url = "https://console.redhat.com/api/pulp-content/public-rhai/rhoai/3.3/cpu-ubi9/multidict-6.7.1-2-cp312-cp312-linux_aarch64.whl", hashes = { sha256 = "0f590b4e611242eb68916690dd2d0855b05b788bbaeb6e684c88928f3dfcf9a3" } },
+    { url = "https://console.redhat.com/api/pulp-content/public-rhai/rhoai/3.3/cpu-ubi9/multidict-6.7.1-2-cp312-cp312-linux_x86_64.whl", hashes = { sha256 = "4edbf9266edceef23b80ab69bfe575349d6a11a396c36bb47f50f5d75cf4b725" } },
 ]
 
 [[packages]]
@@ -299,9 +297,9 @@ wheels = [{ url = "https://console.redhat.com/api/pulp-content/public-rhai/rhoai
 
 [[packages]]
 name = "packaging"
-version = "25.0"
+version = "26.0"
 marker = "implementation_name == 'cpython' and sys_platform == 'linux'"
-wheels = [{ url = "https://console.redhat.com/api/pulp-content/public-rhai/rhoai/3.3/cpu-ubi9/packaging-25.0-2-py3-none-any.whl", hashes = { sha256 = "2fc032cd32dd97facb902fb89f41e1e984e792d9dbe5d29d8e2713b56a0026b1" } }]
+wheels = [{ url = "https://console.redhat.com/api/pulp-content/public-rhai/rhoai/3.3/cpu-ubi9/packaging-26.0-2-py3-none-any.whl", hashes = { sha256 = "4e4d463e366772479222863a8ff3bb307310faee4da6256c6c39641c207b1a44" } }]
 
 [[packages]]
 name = "pandocfilters"
@@ -375,9 +373,9 @@ wheels = [{ url = "https://console.redhat.com/api/pulp-content/public-rhai/rhoai
 
 [[packages]]
 name = "pycparser"
-version = "2.23"
+version = "3.0"
 marker = "implementation_name == 'cpython' and sys_platform == 'linux'"
-wheels = [{ url = "https://console.redhat.com/api/pulp-content/public-rhai/rhoai/3.3/cpu-ubi9/pycparser-2.23-2-py3-none-any.whl", hashes = { sha256 = "0cfc1217512a10bddff118e872851ae288372d3e8346dd4829c7352f096371c9" } }]
+wheels = [{ url = "https://console.redhat.com/api/pulp-content/public-rhai/rhoai/3.3/cpu-ubi9/pycparser-3.0-2-py3-none-any.whl", hashes = { sha256 = "a0a805ba04eb0922ef6f214736f63a5c38dbaebdc4d991f88d64cf3d06af00c5" } }]
 
 [[packages]]
 name = "pycryptodome"

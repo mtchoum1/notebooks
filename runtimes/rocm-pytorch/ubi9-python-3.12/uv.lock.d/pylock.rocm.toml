@@ -504,9 +504,9 @@ wheels = [{ url = "https://console.redhat.com/api/pulp-content/public-rhai/rhoai
 
 [[packages]]
 name = "numpy"
-version = "2.3.5"
+version = "2.4.1"
 marker = "python_full_version >= '3.12' and implementation_name == 'cpython' and sys_platform == 'linux'"
-wheels = [{ url = "https://console.redhat.com/api/pulp-content/public-rhai/rhoai/3.3/rocm6.4-ubi9/numpy-2.3.5-12-cp312-cp312-linux_x86_64.whl", hashes = { sha256 = "c9da85e278e248a9e0c317774086bbb68a4ef0f6e2b2622b261cdf725a7086ab" } }]
+wheels = [{ url = "https://console.redhat.com/api/pulp-content/public-rhai/rhoai/3.3/rocm6.4-ubi9/numpy-2.4.1-12-cp312-cp312-linux_x86_64.whl", hashes = { sha256 = "43c75537719ad872f06cc30382a5a9238c3cafe7357e7ff0e8ed00aabad433d8" } }]
 
 [[packages]]
 name = "onnx"
@@ -951,9 +951,9 @@ wheels = [{ url = "https://console.redhat.com/api/pulp-content/public-rhai/rhoai
 
 [[packages]]
 name = "wcwidth"
-version = "0.2.14"
+version = "0.5.0"
 marker = "python_full_version >= '3.12' and implementation_name == 'cpython' and sys_platform == 'linux'"
-wheels = [{ url = "https://console.redhat.com/api/pulp-content/public-rhai/rhoai/3.3/rocm6.4-ubi9/wcwidth-0.2.14-12-py3-none-any.whl", hashes = { sha256 = "191696033589c12d2c5d3b32e79b5d6f29e4d6aac151701105971f0091a2fb18" } }]
+wheels = [{ url = "https://console.redhat.com/api/pulp-content/public-rhai/rhoai/3.3/rocm6.4-ubi9/wcwidth-0.5.0-12-py3-none-any.whl", hashes = { sha256 = "516ca1cc0e18e6ac74ab293e616ecbe768377d1414f1afde2d6afc380aea136a" } }]
 
 [[packages]]
 name = "webencodings"

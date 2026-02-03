@@ -1467,9 +1467,9 @@ wheels = [{ url = "https://console.redhat.com/api/pulp-content/public-rhai/rhoai
 
 [[packages]]
 name = "wcwidth"
-version = "0.2.14"
+version = "0.5.0"
 marker = "implementation_name == 'cpython' and sys_platform == 'linux'"
-wheels = [{ url = "https://console.redhat.com/api/pulp-content/public-rhai/rhoai/3.3/rocm6.4-ubi9/wcwidth-0.2.14-12-py3-none-any.whl", hashes = { sha256 = "191696033589c12d2c5d3b32e79b5d6f29e4d6aac151701105971f0091a2fb18" } }]
+wheels = [{ url = "https://console.redhat.com/api/pulp-content/public-rhai/rhoai/3.3/rocm6.4-ubi9/wcwidth-0.5.0-12-py3-none-any.whl", hashes = { sha256 = "516ca1cc0e18e6ac74ab293e616ecbe768377d1414f1afde2d6afc380aea136a" } }]
 
 [[packages]]
 name = "webcolors"
