@@ -69,6 +69,9 @@ COPY ${PYTORCH_SOURCE_CODE}/pylock.toml ./
 # Copy Elyra dependencies for air-gapped enviroment
 COPY ${PYTORCH_SOURCE_CODE}/utils ./utils/
 
+# Lower concurrency when building under QEMU (e.g. linux/amd64 on Apple Silicon) to reduce segfault risk.
+ENV UV_CONCURRENT_DOWNLOADS=2 \
+    UV_CONCURRENT_INSTALLS=1
 RUN echo "Installing softwares and packages" && \
     # This may have to download and compile some dependencies, and as we don't lock requirements from `build-system.requires`,
     #  we often don't know the correct hashes and `--require-hashes` would therefore fail on non amd64, where building is common.
