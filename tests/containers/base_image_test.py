@@ -217,20 +217,12 @@ class TestBaseImage:
             output_str = output.decode()
             logging.debug(output_str)
 
-            if has_uv_lock_d:
-                # AIPCC-enabled: cowsay should NOT be available
-                assert ecode != 0, "Expected pip install cowsay to fail on AIPCC-enabled image"
-                assert (
-                    "Could not find a version that satisfies the requirement cowsay" in output_str
-                    or "No matching distribution found for cowsay" in output_str
-                ), f"Expected AIPCC error message, got: {output_str}"
-            else:
-                # Non-AIPCC: cowsay should install and run successfully
-                assert ecode == 0, f"Expected pip install cowsay to succeed, got: {output_str}"
+            # cowsay should install and run successfully
+            assert ecode == 0, f"Expected pip install cowsay to succeed, got: {output_str}"
 
-                ecode, output = container.exec(["python3", "-m", "cowsay", "--text", "Hello world"])
-                logging.debug(output.decode())
-                assert ecode == 0
+            ecode, output = container.exec(["python3", "-m", "cowsay", "--text", "Hello world"])
+            logging.debug(output.decode())
+            assert ecode == 0
 
         self._run_test(image=image, test_fn=test_fn)
 
