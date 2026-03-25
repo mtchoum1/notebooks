@@ -21,6 +21,13 @@ done
 if [[ "${FORCE_LOCKFILES_UPGRADE:-0}" == "1" ]]; then
   ADDITIONAL_UV_FLAGS="--upgrade"
 fi
+
+# Apply CVE constraints if the file exists (used by CVE fix branches)
+CVE_CONSTRAINTS_FILE="$(git rev-parse --show-toplevel)/dependencies/cve-constraints.txt"
+if [[ -f "${CVE_CONSTRAINTS_FILE}" ]]; then
+  echo "Applying CVE constraints: ${CVE_CONSTRAINTS_FILE}"
+  ADDITIONAL_UV_FLAGS="${ADDITIONAL_UV_FLAGS} --constraints=${CVE_CONSTRAINTS_FILE}"
+fi
 export ADDITIONAL_UV_FLAGS
 
 # The following will create a pylock.toml file for every pyproject.toml we have.
