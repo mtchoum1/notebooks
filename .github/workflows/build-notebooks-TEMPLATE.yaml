@@ -354,6 +354,9 @@ jobs:
           FLAVOR=${FLAVOR:-cpu}
           if [ -d "$COMPONENT_DIR/prefetch-input" ]; then
             echo "Hermetic build detected — prefetching dependencies for $COMPONENT_DIR (flavor=$FLAVOR)"
+            # PR/push jobs normally start clean, but remove any stale tree (retries, self-hosted,
+            # or partial prefetch) and the post-prefetch relocation target so Hermeto repodata is fresh.
+            rm -rf "${GITHUB_WORKSPACE}/cachi2/output" "${HOME}/.local/share/containers/cachi2-output"
             pip3 install --quiet --break-system-packages pyyaml
             command -v uv &>/dev/null || pip3 install --quiet --break-system-packages uv
 

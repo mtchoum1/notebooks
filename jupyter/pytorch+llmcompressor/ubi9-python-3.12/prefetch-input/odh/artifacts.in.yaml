@@ -14,3 +14,6 @@ input:
     # Pandoc 3.7.0.2 for PDF export (amd64 and arm64 only; ppc64le/s390x skip PDF)
     - url: https://github.com/jgm/pandoc/releases/download/3.7.0.2/pandoc-3.7.0.2-linux-amd64.tar.gz
     - url: https://github.com/jgm/pandoc/releases/download/3.7.0.2/pandoc-3.7.0.2-linux-arm64.tar.gz
+    # uv: RHOAI PyPI mirror ships wheels for aarch64/s390x/x86_64 only — ppc64le uses upstream release binary.
+    - url: https://github.com/astral-sh/uv/releases/download/0.11.0/uv-powerpc64le-unknown-linux-gnu.tar.gz
+      checksum: sha256:29f17fb43595492b1a36cda57df7adad74183132df32799d32897268ff4e26dd

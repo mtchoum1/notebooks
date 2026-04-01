@@ -9,3 +9,6 @@ input:
     # CentOS Stream 9 GPG key (needed in whl-cache stage for ppc64le/s390x dnf install
     # from CentOS baseos/appstream/crb repos; UBI9 images only ship the Red Hat key)
     - url: https://www.centos.org/keys/RPM-GPG-KEY-CentOS-Official
+    # uv: RHOAI PyPI mirror ships wheels for aarch64/s390x/x86_64 only — ppc64le uses upstream release binary.
+    - url: https://github.com/astral-sh/uv/releases/download/0.11.0/uv-powerpc64le-unknown-linux-gnu.tar.gz
+      checksum: sha256:29f17fb43595492b1a36cda57df7adad74183132df32799d32897268ff4e26dd

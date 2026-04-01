@@ -14,3 +14,6 @@ artifacts:
   - download_url: https://github.com/jgm/pandoc/releases/download/3.7.0.2/pandoc-3.7.0.2-linux-arm64.tar.gz
     checksum: sha256:4ef2997ff0fa7f86ada5a217722f4f732293e38518b4442ececce16628bd0e44
     filename: pandoc-3.7.0.2-linux-arm64.tar.gz
+  - download_url: https://github.com/astral-sh/uv/releases/download/0.11.0/uv-powerpc64le-unknown-linux-gnu.tar.gz
+    checksum: sha256:29f17fb43595492b1a36cda57df7adad74183132df32799d32897268ff4e26dd
+    filename: uv-powerpc64le-unknown-linux-gnu.tar.gz

@@ -5,3 +5,6 @@ artifacts:
   - download_url: https://www.centos.org/keys/RPM-GPG-KEY-CentOS-Official
     checksum: sha256:146059788b214d7ba0dd70c1cf21111e594c6cfde201da8a9a88fe7101be8a78
     filename: RPM-GPG-KEY-CentOS-Official
+  - download_url: https://github.com/astral-sh/uv/releases/download/0.11.0/uv-powerpc64le-unknown-linux-gnu.tar.gz
+    checksum: sha256:29f17fb43595492b1a36cda57df7adad74183132df32799d32897268ff4e26dd
+    filename: uv-powerpc64le-unknown-linux-gnu.tar.gz
