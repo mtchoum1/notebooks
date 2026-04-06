@@ -441,6 +441,12 @@ validate-rstudio-image: bin/kubectl
 # Optional: UV_EXTRA_INDEX_URL / PIP_EXTRA_INDEX_URL (e.g. RH CUDA *-test/simple/) are
 # forwarded to the lock generator as UV_LOCK_* / PIP_LOCK_* only, then unset so
 # `uv run` at the repo root is not affected (see scripts/pylocks_generator.py).
+# After lock generation, manifests/tools/update_imagestream_annotations_from_pylock.py runs
+# to refresh ImageStream tag annotations from the new pylock files.
+# Note: that step updates only the latest slot (recommended tag, typically N / index 0), not
+# N-1 or N-2. To refresh older ImageStream tags from historical pylocks, use the GitHub Action
+# ``ImageStream annotations from pylock`` (.github/workflows/imagestream-annotations-update.yaml),
+# which can update N, N-1, N-2, and N-3 (see workflow inputs and use_git_tag_history).
 # ======================================================================================
 DIR ?=
 .PHONY: refresh-lock-files
@@ -452,7 +458,11 @@ refresh-lock-files:
 		UV_LOCK_EXTRA_INDEX_URL="$(UV_EXTRA_INDEX_URL)" \
 		PIP_LOCK_EXTRA_INDEX_URL="$(PIP_EXTRA_INDEX_URL)" \
 		env -u UV_EXTRA_INDEX_URL -u PIP_EXTRA_INDEX_URL \
-		./uv run scripts/pylocks_generator.py $(INDEX_MODE) $(DIR)
+		./uv run scripts/pylocks_generator.py $(INDEX_MODE) $(DIR) && \
+		echo "===================================================================" && \
+		echo "📋 Updating ImageStream annotations from pylock files" && \
+		echo "===================================================================" && \
+		./uv run manifests/tools/update_imagestream_annotations_from_pylock.py $(if $(DIR),--image-dir $(DIR),--all)
 
 # This is only for the workflow action
 # For running manually, set the required environment variables
