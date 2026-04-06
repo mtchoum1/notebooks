@@ -61,7 +61,7 @@ spec:
         # language=json
       opendatahub.io/notebook-software: |
         [
-          {"name": "Python", "version": "v3.11"}
+          {"name": "Python", "version": "v3.12"}
         ]
        # language=json
       opendatahub.io/notebook-python-dependencies: |
@@ -82,12 +82,12 @@ spec:
         # language=json
       opendatahub.io/notebook-software: |
         [
-          {"name": "Python", "version": "v3.11"}
+          {"name": "Python", "version": "v3.12"}
         ]
        # language=json
       opendatahub.io/notebook-python-dependencies: |
         [
-          {"name": "JupyterLab","version": "4.4"}
+          {"name": "JupyterLab", "version": "4.4"}
         ]
       openshift.io/imported-from: quay.io/modh/odh-minimal-notebook-container
       opendatahub.io/image-tag-outdated: "true"

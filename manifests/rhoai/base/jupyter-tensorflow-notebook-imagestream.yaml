@@ -68,7 +68,7 @@ spec:
        # language=json
       opendatahub.io/notebook-python-dependencies: |
         [
-          {"name": "JupyterLab","version": "4.4"},
+          {"name": "JupyterLab", "version": "4.4"},
           {"name": "TensorFlow", "version": "2.20"},
           {"name": "Tensorboard", "version": "2.20"},
           {"name": "Nvidia-CUDA-CU12-Bundle", "version": "12.9"},
@@ -80,11 +80,11 @@ spec:
           {"name": "Pandas", "version": "2.3"},
           {"name": "Scikit-learn", "version": "1.7"},
           {"name": "Scipy", "version": "1.16"},
-          {"name": "Odh-Elyra", "version": "5.0"},
+          {"name": "Odh-Elyra", "version": "4.3"},
           {"name": "PyMongo", "version": "4.15"},
           {"name": "Pyodbc", "version": "5.2"},
-          {"name": "Codeflare-SDK", "version": "0.34"},
-          {"name": "Feast", "version": "0.59"},
+          {"name": "Codeflare-SDK", "version": "0.33"},
+          {"name": "Feast", "version": "0.58"},
           {"name": "Sklearn-onnx", "version": "1.19"},
           {"name": "Psycopg", "version": "3.2"},
           {"name": "MySQL Connector/Python", "version": "9.4"}
@@ -104,31 +104,31 @@ spec:
       opendatahub.io/notebook-software: |
         [
           {"name": "CUDA", "version": "12.6"},
-          {"name": "Python", "version": "v3.11"},
-          {"name": "TensorFlow", "version": "2.18"}
+          {"name": "Python", "version": "v3.12"},
+          {"name": "TensorFlow", "version": "2.20"}
         ]
        # language=json
       opendatahub.io/notebook-python-dependencies: |
         [
-          {"name": "JupyterLab","version": "4.4"},
-          {"name": "TensorFlow", "version": "2.18"},
-          {"name": "Tensorboard", "version": "2.18"},
-          {"name": "Nvidia-CUDA-CU12-Bundle", "version": "12.5"},
-          {"name": "Boto3", "version": "1.37"},
+          {"name": "JupyterLab", "version": "4.4"},
+          {"name": "TensorFlow", "version": "2.20"},
+          {"name": "Tensorboard", "version": "2.20"},
+          {"name": "Nvidia-CUDA-CU12-Bundle", "version": "12.9"},
+          {"name": "Boto3", "version": "1.40"},
           {"name": "Kafka-Python-ng", "version": "2.2"},
-          {"name": "Kfp", "version": "2.12"},
+          {"name": "Kfp", "version": "2.14"},
           {"name": "Matplotlib", "version": "3.10"},
-          {"name": "Numpy", "version": "1.26"},
-          {"name": "Pandas", "version": "2.2"},
-          {"name": "Scikit-learn", "version": "1.6"},
-          {"name": "Scipy", "version": "1.15"},
-          {"name": "Odh-Elyra", "version": "4.2"},
-          {"name": "PyMongo", "version": "4.11"},
+          {"name": "Numpy", "version": "2.1"},
+          {"name": "Pandas", "version": "2.3"},
+          {"name": "Scikit-learn", "version": "1.7"},
+          {"name": "Scipy", "version": "1.16"},
+          {"name": "Odh-Elyra", "version": "4.3"},
+          {"name": "PyMongo", "version": "4.15"},
           {"name": "Pyodbc", "version": "5.2"},
-          {"name": "Codeflare-SDK", "version": "0.30"},
-          {"name": "Sklearn-onnx", "version": "1.18"},
+          {"name": "Codeflare-SDK", "version": "0.32"},
+          {"name": "Sklearn-onnx", "version": "1.19"},
           {"name": "Psycopg", "version": "3.2"},
-          {"name": "MySQL Connector/Python", "version": "9.3"}
+          {"name": "MySQL Connector/Python", "version": "9.4"}
         ]
       openshift.io/imported-from: quay.io/modh/cuda-notebooks
       opendatahub.io/image-tag-outdated: "true"
@@ -145,31 +145,31 @@ spec:
       opendatahub.io/notebook-software: |
         [
           {"name": "CUDA", "version": "12.4"},
-          {"name": "Python", "version": "v3.11"},
-          {"name": "TensorFlow", "version": "2.17"}
+          {"name": "Python", "version": "v3.12"},
+          {"name": "TensorFlow", "version": "2.19"}
         ]
        # language=json
       opendatahub.io/notebook-python-dependencies: |
         [
-          {"name": "JupyterLab","version": "4.2"},
-          {"name": "TensorFlow", "version": "2.17"},
-          {"name": "Tensorboard", "version": "2.17"},
-          {"name": "Nvidia-CUDA-CU12-Bundle", "version": "12.3"},
-          {"name": "Boto3", "version": "1.35"},
+          {"name": "JupyterLab", "version": "4.4"},
+          {"name": "TensorFlow", "version": "2.19"},
+          {"name": "Tensorboard", "version": "2.19"},
+          {"name": "Nvidia-CUDA-CU12-Bundle", "version": "12.5"},
+          {"name": "Boto3", "version": "1.37"},
           {"name": "Kafka-Python-ng", "version": "2.2"},
-          {"name": "Kfp", "version": "2.5"},
-          {"name": "Matplotlib", "version": "3.9"},
+          {"name": "Kfp", "version": "2.12"},
+          {"name": "Matplotlib", "version": "3.10"},
           {"name": "Numpy", "version": "1.26"},
           {"name": "Pandas", "version": "2.2"},
-          {"name": "Scikit-learn", "version": "1.5"},
-          {"name": "Scipy", "version": "1.14"},
+          {"name": "Scikit-learn", "version": "1.6"},
+          {"name": "Scipy", "version": "1.15"},
           {"name": "Odh-Elyra", "version": "4.2"},
-          {"name": "PyMongo", "version": "4.8"},
-          {"name": "Pyodbc", "version": "5.1"},
-          {"name": "Codeflare-SDK", "version": "0.24"},
-          {"name": "Sklearn-onnx", "version": "1.17"},
+          {"name": "PyMongo", "version": "4.11"},
+          {"name": "Pyodbc", "version": "5.2"},
+          {"name": "Codeflare-SDK", "version": "0.30"},
+          {"name": "Sklearn-onnx", "version": "1.18"},
           {"name": "Psycopg", "version": "3.2"},
-          {"name": "MySQL Connector/Python", "version": "9.0"}
+          {"name": "MySQL Connector/Python", "version": "9.3"}
         ]
       openshift.io/imported-from: quay.io/modh/cuda-notebooks
       opendatahub.io/image-tag-outdated: "true"
