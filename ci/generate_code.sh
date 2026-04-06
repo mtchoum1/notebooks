@@ -9,3 +9,7 @@ uv --version || pip install "uv==0.10.6"
 "${REPO_ROOT}/uv" run scripts/dockerfile_fragments.py
 "${REPO_ROOT}/uv" run manifests/tools/generate_kustomization.py
 PYLOCKS_CI_CHECK=1 "${REPO_ROOT}/uv" run scripts/pylocks_generator.py
+"${REPO_ROOT}/uv" run manifests/tools/update_imagestream_annotations_from_pylock.py --check --all
+
+cd "${REPO_ROOT}"
+make setup test
