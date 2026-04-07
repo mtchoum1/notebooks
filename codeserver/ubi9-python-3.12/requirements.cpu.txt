@@ -67,8 +67,8 @@ executing==2.2.1 ; implementation_name == 'cpython' and sys_platform == 'linux' 
     --hash=sha256:647b720dfae442bdc92e65b6e3eaa47f698b80539a0ff3b3766e8027cdae7994
 fastapi==0.135.1 ; implementation_name == 'cpython' and sys_platform == 'linux' \
     --hash=sha256:376029076bc714d64c931f8e3cb90822ef75217a011e248f72d369c5bc5b8d2d
-feast==0.60.0 ; implementation_name == 'cpython' and sys_platform == 'linux' \
-    --hash=sha256:5b5ce554984cc9cab77979369a0d69a02e5468890fad14ae848c7ce3d0eb806b
+feast==0.61.0 ; implementation_name == 'cpython' and sys_platform == 'linux' \
+    --hash=sha256:99b95fd6e311ad8074749cf14736eaf4899e59a41c8856ca7070ac6546c937fc
 filelock==3.25.1 ; implementation_name == 'cpython' and sys_platform == 'linux' \
     --hash=sha256:d3e0cda4591270f41b9643a2f23776bf464f89be02a8cac4c6da5f57c93e710b
 fonttools==4.62.0 ; implementation_name == 'cpython' and sys_platform == 'linux' \

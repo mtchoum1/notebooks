@@ -543,10 +543,10 @@ wheels = [{ url = "https://files.pythonhosted.org/packages/9e/dd/d0ee25348ac5824
 
 [[packages]]
 name = "feast"
-version = "0.59.0"
+version = "0.61.0"
 marker = "implementation_name == 'cpython' and sys_platform == 'linux'"
-sdist = { url = "https://files.pythonhosted.org/packages/03/22/bbfe21b719e8d278d2e1d4a09542beff84c05f169b434fab40778c01316c/feast-0.59.0.tar.gz", upload-time = 2026-01-16T21:21:14Z, size = 6392725, hashes = { sha256 = "f4a09733ca8a2967495d95230d0e433ff8c9b1181ef0bf9a92729f69f74ac606" } }
-wheels = [{ url = "https://files.pythonhosted.org/packages/1c/7b/ad8e7872733636e70123e679f229fac0b9c23703604f05c16b11c67b47bb/feast-0.59.0-py2.py3-none-any.whl", upload-time = 2026-01-16T21:21:12Z, size = 7876795, hashes = { sha256 = "7e5e8d14bf651c4d4cc621793d33a22ddb86decbb74677eb7020abb8812cd7d2" } }]
+sdist = { url = "https://files.pythonhosted.org/packages/26/a3/280e43044b37961c50de8a9387e5f89c0f033730793a633bc7f8d3aba8ec/feast-0.61.0.tar.gz", upload-time = 2026-03-10T20:39:46Z, size = 6813996, hashes = { sha256 = "7e5d2c6107a435fa550c917d5535e48db54aeb19ee9b7ff9410f1ee7d15f9890" } }
+wheels = [{ url = "https://files.pythonhosted.org/packages/37/75/da4a9e1b45bf944211c387588f154a55982cf987ec7c7920d6f40115e782/feast-0.61.0-py3-none-any.whl", upload-time = 2026-03-10T20:39:43Z, size = 8204967, hashes = { sha256 = "576f7c9ee45f1d9a73732b8a4d3b6300b8e2dfc6312d3b52194f832d6f020273" } }]
 
 [[packages]]
 name = "filelock"
