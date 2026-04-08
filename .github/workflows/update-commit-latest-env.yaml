@@ -1,16 +1,21 @@
 ---
-name: Update commit-latest.env on params-latest.env change
+# Sync commit-*.env from skopeo-inspected vcs-ref labels whenever params*.env changes,
+# plus a daily run. Downstream jobs (e.g. params-env validation) may follow in CI.
+name: Update commit env files on params env changes
 
 "on":
   workflow_dispatch:
   schedule:
-    - cron: '0 11 * * *'  # Daily at midnight UTC
+    - cron: '0 11 * * *'  # Daily at 11:00 UTC
   push:
     branches:
       - main
       - rhoai-*
     paths:
-      - 'manifests/base/params-latest.env'
+      - 'manifests/odh/base/params-latest.env'
+      - 'manifests/odh/base/params.env'
+      - 'manifests/rhoai/base/params-latest.env'
+      - 'manifests/rhoai/base/params.env'
 
 jobs:
   sync-commit:
@@ -27,21 +32,54 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           persist-credentials: true
 
-      - name: Update manifests/base/commit-latest.env
+      # Skopeo inspects images; git-crypt + pull-secret authenticate private RHOAI registry pulls.
+      - name: Install Skopeo and git-crypt
+        uses: ./.github/actions/apt-install
+        with:
+          packages: skopeo git-crypt
+
+      - name: Unlock encrypted secrets with git-crypt
+        run: |
+          echo "${GIT_CRYPT_KEY}" | base64 --decode > ./git-crypt-key
+          git-crypt unlock ./git-crypt-key
+          rm ./git-crypt-key
+        env:
+          GIT_CRYPT_KEY: ${{ secrets.GIT_CRYPT_KEY }}
+
+      - name: Configure skopeo auth from pull-secret
+        run: |
+          mkdir -p "$HOME/.config/containers"
+          cp ci/secrets/pull-secret.json "$HOME/.config/containers/auth.json"
+
+      - uses: ./.github/actions/setup-uv
+
+      - name: Update manifests/*/base/commit-latest.env and commit.env
         id: update_env
         run: |
-          python3 scripts/update-commit-latest-env.py
+          cd "${GITHUB_WORKSPACE}"
+          uv run python scripts/update-commit-latest-env.py --all
 
       - name: Commit and push changes
         run: |
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
 
-          # Check for changes before committing
-          if ! git diff --quiet manifests/base/commit-latest.env; then
-            git add manifests/base/commit-latest.env
-            git commit -m "ci: update commit SHAs for image digests changes"
+          # Check for changes before committing (both ODH and RHOAI trees).
+          changed=0
+          for f in \
+            manifests/odh/base/commit-latest.env \
+            manifests/odh/base/commit.env \
+            manifests/rhoai/base/commit-latest.env \
+            manifests/rhoai/base/commit.env; do
+            if ! git diff --quiet -- "$f" 2>/dev/null; then
+              changed=1
+              git add -- "$f"
+            fi
+          done
+
+          if [[ "$changed" -eq 1 ]]; then
+            git commit -m "ci: refresh commit SHAs from image vcs-ref labels"
             git push
           else
-            echo "No effective changes in manifests/base/commit-latest.env, skipping commit."
+            echo "No effective changes in commit env files, skipping commit."
           fi

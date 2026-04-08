@@ -139,7 +139,7 @@ endef
 #######################################        Build helpers                 #######################################
 
 # https://stackoverflow.com/questions/78899903/how-to-create-a-make-target-which-is-an-implicit-dependency-for-all-other-target
-skip-init-for := all-images deploy% undeploy% test% validate% refresh-lock-files scan-image-vulnerabilities print-release
+skip-init-for := all-images deploy% undeploy% test% validate% refresh-lock-files sync-commit-env-files update-imagestream-annotations refresh-imagestream-metadata scan-image-vulnerabilities print-release
 ifneq (,$(filter-out $(skip-init-for),$(MAKECMDGOALS) $(.DEFAULT_GOAL)))
 $(SELF): bin/buildinputs
 endif
@@ -455,6 +455,51 @@ refresh-lock-files:
 		PIP_LOCK_EXTRA_INDEX_URL="$(PIP_EXTRA_INDEX_URL)" \
 		env -u UV_EXTRA_INDEX_URL -u PIP_EXTRA_INDEX_URL \
 		./uv run scripts/pylocks_generator.py $(INDEX_MODE) $(DIR)
+
+# ======================================================================================
+# Sync commit-*.env from registry image labels (skopeo) + refresh ImageStream annotations
+# Usage examples (same pattern as refresh-lock-files: run from repo root via make):
+#   gmake sync-commit-env-files
+#   gmake sync-commit-env-files VARIANT=odh
+#   gmake update-imagestream-annotations
+#   gmake update-imagestream-annotations VARIANT=rhoai DRY_RUN=1
+#   gmake refresh-imagestream-metadata                    <- sync commit envs then annotations (CI-like)
+# Prerequisites:
+#   - ./uv sync --locked (or make setup) so scripts run in the project venv
+#   - skopeo on PATH (sync-commit-env-files inspects images from params*.env)
+#   - For private registry pulls: mkdir -p ~/.config/containers &&
+#       cp ci/secrets/pull-secret.json ~/.config/containers/auth.json
+#   - Full clone / fetch-depth 0 helps update-imagestream-annotations when git show needs SHAs
+#       not already in the local object database (script can fetch from GitHub when needed).
+# ======================================================================================
+VARIANT ?=
+DRY_RUN ?=
+.PHONY: sync-commit-env-files
+sync-commit-env-files:
+	@echo "==================================================================="
+	@echo "📦 Syncing commit-latest.env / commit.env from image vcs-ref (VARIANT=$(or $(VARIANT),odh+rhoai))"
+	@echo "==================================================================="
+	@cd $(ROOT_DIR) && ./uv run python scripts/update-commit-latest-env.py \
+		$(if $(VARIANT),--variant $(VARIANT),)
+
+.PHONY: update-imagestream-annotations
+update-imagestream-annotations:
+	@echo "==================================================================="
+	@echo "📋 Refreshing ImageStream notebook dependency annotations (VARIANT=$(or $(VARIANT),odh+rhoai))"
+	@echo "==================================================================="
+	@cd $(ROOT_DIR) && \
+	if [[ -n "$(VARIANT)" ]]; then \
+		./uv run python manifests/tools/update_imagestream_annotations_from_pylock.py \
+			--variant "$(VARIANT)" $(if $(filter 1 true yes,$(DRY_RUN)),--dry-run,); \
+	else \
+		./uv run python manifests/tools/update_imagestream_annotations_from_pylock.py --variant odh \
+			$(if $(filter 1 true yes,$(DRY_RUN)),--dry-run,) && \
+		./uv run python manifests/tools/update_imagestream_annotations_from_pylock.py --variant rhoai \
+			$(if $(filter 1 true yes,$(DRY_RUN)),--dry-run,); \
+	fi
+
+.PHONY: refresh-imagestream-metadata
+refresh-imagestream-metadata: sync-commit-env-files update-imagestream-annotations
 
 # This is only for the workflow action
 # For running manually, set the required environment variables
