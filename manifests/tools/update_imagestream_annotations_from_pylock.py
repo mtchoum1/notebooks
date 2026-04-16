@@ -7,7 +7,9 @@ For each workbench ImageStream tag, resolves the git tree-ish as:
   ``pylock.toml`` pins. If no file exists on disk, the SHA from ``commit-latest.env`` is used with
   ``git show`` (fetching from the canonical repo if needed): ``https://github.com/opendatahub-io/notebooks.git``
   (``--variant odh``) or ``https://github.com/red-hat-data-services/notebooks.git`` (``--variant rhoai``).
-- Older tags (e.g. ``-2025-2``): SHA from ``commit.env`` (``<base>-commit-2025-2``).
+- Older tags (e.g. ``-2025-2``): SHA from ``commit.env``. Those commits may exist only on the canonical
+  upstream (especially RHDS for ``--variant rhoai``); the script runs ``git fetch`` before ``git show``
+  when the object is not already in the clone (fork CI often lacks RHDS-only SHAs until fetched).
 
 Those SHAs match ``manifests/tools/generate_kustomization.py`` / ConfigMap keys.
 
@@ -32,6 +34,7 @@ import dataclasses
 import json
 import logging
 import re
+import shlex
 import subprocess
 import sys
 import tomllib
@@ -84,7 +87,7 @@ _RSTUDIO_NOTEBOOK_RESOURCES = frozenset(
     }
 )
 
-# Canonical Git URLs for ``git fetch`` when the ``-n`` tag commit is not already in the local object DB.
+# Canonical Git URLs for ``git fetch`` when a pinned commit is not already in the local object DB.
 _CANONICAL_REPO_URL: dict[str, str] = {
     "odh": "https://github.com/opendatahub-io/notebooks.git",
     "rhoai": "https://github.com/red-hat-data-services/notebooks.git",
@@ -345,22 +348,30 @@ def _git_commit_exists(rev: str) -> bool:
     return p.returncode == 0
 
 
-def _git_fetch_commit_from(url: str, rev: str) -> bool:
-    p = subprocess.run(
-        ["git", "-C", str(ROOT), "fetch", "--quiet", "--no-tags", url, rev],
-        capture_output=True,
-        text=True,
-        check=False,
-    )
-    return p.returncode == 0
+def _git_fetch_commit_from(url: str, rev: str) -> tuple[bool, str]:
+    """Fetch ``rev`` from ``url`` into the local object database. Returns (ok, detail on failure)."""
+    cmd = ["git", "-C", str(ROOT), "fetch", "--quiet", "--no-tags", url, rev]
+    p = subprocess.run(cmd, capture_output=True, text=True, check=False)
+    if p.returncode == 0:
+        return True, ""
+    err = (p.stderr or "").strip()
+    if not err and (p.stdout or "").strip():
+        err = (p.stdout or "").strip()
+    if not err:
+        err = f"exit code {p.returncode}"
+    quoted = " ".join(shlex.quote(c) for c in cmd)
+    return False, f"{err}\n  (command: {quoted})"
 
 
-def _ensure_n_tag_commit_from_canonical_upstream(variant: str, rev: str) -> bool:
-    """Ensure ``rev`` is available for ``git show`` using the ODH or RHDS canonical ``.git`` URL for ``-n`` tags."""
+def _ensure_commit_from_canonical_upstream(variant: str, rev: str) -> tuple[bool, str | None]:
+    """Ensure ``rev`` is available for ``git show`` via ``git fetch`` from the variant canonical repo."""
     url = _CANONICAL_REPO_URL[variant]
     if _git_commit_exists(rev):
-        return True
-    return _git_fetch_commit_from(url, rev)
+        return True, None
+    ok, detail = _git_fetch_commit_from(url, rev)
+    if ok:
+        return True, None
+    return False, detail
 
 
 def _git_show_text(rev: str, rel_path: str) -> str | None:
@@ -622,6 +633,8 @@ def run_variant(variant: str, dry_run: bool) -> int:
             if idx >= len(tags):
                 break
             sha = _sha_for_tag(base_key, suffix, latest, released)
+            sha_desc = sha if sha else "<missing>"
+            print(f"check {path.name} tag {idx}: {base_key}{suffix} (commit={sha_desc})", file=sys.stderr)
             nb_dir = resolve_notebook_directory(candidates, base_key)
             if nb_dir is None:
                 want = notebook_dirname_from_base_key(base_key)
@@ -639,19 +652,36 @@ def run_variant(variant: str, dry_run: bool) -> int:
                 shown = _worktree_read_first_existing(rel_paths)
             else:
                 shown = None
+            if shown is not None:
+                rel_used, _text = shown
+                print(
+                    f"ok {path.name} tag {idx}: using worktree lockfile {rel_used}",
+                    file=sys.stderr,
+                )
 
             if shown is None:
                 if not sha:
                     print(f"skip {path.name} tag {idx}: no SHA for {base_key}{suffix}", file=sys.stderr)
                     continue
-                if suffix == "-n" and not _ensure_n_tag_commit_from_canonical_upstream(variant, sha):
+                # Released tags (e.g. ``-2025-2``) use ``commit.env`` SHAs that may live only on RHDS/ODH;
+                # a fresh checkout (e.g. GitHub Actions) does not contain them until we fetch.
+                ok_upstream, fetch_err = _ensure_commit_from_canonical_upstream(variant, sha)
+                if not ok_upstream:
+                    url = _CANONICAL_REPO_URL[variant]
                     print(
-                        f"skip {path.name} tag {idx}: could not resolve commit {sha} via "
-                        f"{_CANONICAL_REPO_URL[variant]}",
+                        f"skip {path.name} tag {idx}: git fetch failed for commit {sha} from {url}\n"
+                        f"  {fetch_err}",
                         file=sys.stderr,
                     )
                     continue
+                print(f"ok {path.name} tag {idx}: commit {sha} is available locally", file=sys.stderr)
                 shown = _git_show_first_existing(sha, rel_paths)
+                if shown is not None:
+                    rel_used, _text = shown
+                    print(
+                        f"ok {path.name} tag {idx}: got lockfile {rel_used} from {sha}",
+                        file=sys.stderr,
+                    )
             if shown is None:
                 print(
                     f"skip {path.name} tag {idx}: no lockfile (tried worktree/git {'; '.join(rel_paths)})",
