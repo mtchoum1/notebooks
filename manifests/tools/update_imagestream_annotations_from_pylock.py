@@ -7,12 +7,22 @@ For each workbench ImageStream tag, resolves the git tree-ish as:
   ``pylock.toml`` pins. If no file exists on disk, the SHA from ``commit-latest.env`` is used with
   ``git show`` (fetching from the canonical repo if needed): ``https://github.com/opendatahub-io/notebooks.git``
   (``--variant odh``) or ``https://github.com/red-hat-data-services/notebooks.git`` (``--variant rhoai``).
-- Older tags (e.g. ``-2025-2``): SHA from ``commit.env`` (``<base>-commit-2025-2``).
+- Older tags (e.g. ``-2025-2``): SHA from ``commit.env``. Those commits may exist only on the canonical
+  upstream (especially RHDS for ``--variant rhoai``); the script runs ``git fetch`` before ``git show``
+  when the object is not already in the clone (fork CI often lacks RHDS-only SHAs until fetched).
 
 Those SHAs match ``manifests/tools/generate_kustomization.py`` / ConfigMap keys.
 
+Abbreviated SHAs (from ``commit*.env``) are expanded to full 40-character OIDs via the GitHub REST API
+when the canonical remote is ``github.com`` — ``git fetch … <short>`` treats short hex as a ref name and
+fails with ``couldn't find remote ref``. Set ``GITHUB_TOKEN`` / ``GH_TOKEN`` for API auth (rate limits).
+
 Dependency *names* and ordering are taken from the existing manifest; versions are updated from
-the resolved lockfile at each ref (same translation rules as ``tests/test_main.py``). Older commits may only have ``requirements.txt`` or flavor files such as ``requirements.cpu.txt``
+the resolved lockfile at each ref (same translation rules as ``tests/test_main.py``). For GPU
+ImageStream tags, the lockfile flavor matches the image (``pylock.cuda.toml`` / ``requirements.cuda.txt``
+vs ``pylock.rocm.toml`` / ``requirements.rocm.txt``). **CUDA** and **ROCm** entries in
+``notebook-software`` are refreshed from the stack encoded in that lockfile (e.g. ``cuda13.0-ubi9``
+/ ``rocm6.4-ubi9`` in generated uv header comments or wheel URLs). Older commits may only have ``requirements.txt`` or flavor files such as ``requirements.cpu.txt``
 instead of ``pylock.toml`` / ``uv.lock.d/pylock.*.toml``; those are parsed as pinned PEP 508 requirements.
 Some historical trees use pipenv only: ``Pipfile.lock`` (or ``Pipfile.lock.cpu`` / ``Pipfile.lock.gpu``); the ``default`` section is parsed for pinned versions.
 Image directories are discovered via ``pyproject.toml`` or those requirements files at the
@@ -31,10 +41,14 @@ import argparse
 import dataclasses
 import json
 import logging
+import os
 import re
+import shlex
 import subprocess
 import sys
 import tomllib
+import urllib.error
+import urllib.request
 from pathlib import Path
 from typing import Any
 
@@ -84,7 +98,7 @@ _RSTUDIO_NOTEBOOK_RESOURCES = frozenset(
     }
 )
 
-# Canonical Git URLs for ``git fetch`` when the ``-n`` tag commit is not already in the local object DB.
+# Canonical Git URLs for ``git fetch`` when a pinned commit is not already in the local object DB.
 _CANONICAL_REPO_URL: dict[str, str] = {
     "odh": "https://github.com/opendatahub-io/notebooks.git",
     "rhoai": "https://github.com/red-hat-data-services/notebooks.git",
@@ -93,6 +107,68 @@ _CANONICAL_REPO_URL: dict[str, str] = {
 # Commit values from *.env must look like hex object IDs before passing to git (avoid ref injection).
 # Repo env files use short SHAs (7+ chars); full 40-char hashes are also accepted.
 _GIT_HEX_OBJECT_ID = re.compile(r"^[0-9a-f]{7,40}$")
+
+_GITHUB_REPO_RE = re.compile(
+    r"github\.com[:/](?P<owner>[^/]+)/(?P<repo>[^/?.#]+)(?:\.git)?(?:/|$)",
+    re.IGNORECASE,
+)
+
+# RH AI wheel indices embed the accelerator stack in path segments, e.g. ``…/cuda13.0-ubi9/…``.
+_CUDA_STACK_IN_PATH = re.compile(r"(?:^|/)cuda(\d+\.\d+)-")
+_ROCM_STACK_IN_PATH = re.compile(r"(?:^|/)rocm(\d+\.\d+)-")
+
+
+def _parse_github_owner_repo(git_url: str) -> tuple[str, str] | None:
+    m = _GITHUB_REPO_RE.search(git_url)
+    if not m:
+        return None
+    return m.group("owner"), m.group("repo")
+
+
+def _resolve_github_commit_full_sha(git_url: str, rev: str) -> str | None:
+    """Resolve abbreviated git SHA to full 40-char lowercase via GitHub REST API.
+
+    ``git fetch https://…/repo.git <short>`` treats ``<short>`` as a *ref name*, which yields
+    ``couldn't find remote ref``. Passing the full OID fixes fetch against github.com.
+
+    Uses ``GITHUB_TOKEN`` / ``GH_TOKEN`` when set (CI rate limits and private forks).
+    """
+    rev_clean = rev.strip().lower()
+    if not _GIT_HEX_OBJECT_ID.fullmatch(rev_clean):
+        return None
+    if len(rev_clean) == 40:
+        return rev_clean
+    parsed = _parse_github_owner_repo(git_url)
+    if parsed is None:
+        return None
+    owner, repo = parsed
+    api = f"https://api.github.com/repos/{owner}/{repo}/commits/{rev_clean}"
+    token = os.environ.get("GITHUB_TOKEN") or os.environ.get("GH_TOKEN")
+    headers = {
+        "Accept": "application/vnd.github+json",
+        "User-Agent": "opendatahub-notebooks-manifest-tools",
+        "X-GitHub-Api-Version": "2022-11-28",
+    }
+    if token:
+        headers["Authorization"] = f"Bearer {token.strip()}"
+    req = urllib.request.Request(api, headers=headers)
+    try:
+        with urllib.request.urlopen(req, timeout=120) as resp:
+            body = json.loads(resp.read().decode())
+        sha = body.get("sha")
+        if isinstance(sha, str):
+            sha = sha.lower()
+            if len(sha) == 40 and sha.startswith(rev_clean):
+                return sha
+    except (urllib.error.HTTPError, urllib.error.URLError, TimeoutError, json.JSONDecodeError, KeyError):
+        return None
+    return None
+
+
+def _rev_for_git_fetch(git_url: str, rev: str) -> str:
+    """Return a revision string suitable for ``git fetch <url> <rev>`` (full OID when possible)."""
+    expanded = _resolve_github_commit_full_sha(git_url, rev)
+    return expanded if expanded is not None else rev.strip()
 
 
 def _is_under_jupyter_rocm_tree(directory: Path) -> bool:
@@ -345,22 +421,35 @@ def _git_commit_exists(rev: str) -> bool:
     return p.returncode == 0
 
 
-def _git_fetch_commit_from(url: str, rev: str) -> bool:
-    p = subprocess.run(
-        ["git", "-C", str(ROOT), "fetch", "--quiet", "--no-tags", url, rev],
-        capture_output=True,
-        text=True,
-        check=False,
-    )
-    return p.returncode == 0
+def _git_fetch_commit_from(url: str, rev: str) -> tuple[bool, str]:
+    """Fetch ``rev`` from ``url`` into the local object database. Returns (ok, detail on failure)."""
+    fetch_rev = _rev_for_git_fetch(url, rev)
+    cmd = ["git", "-C", str(ROOT), "fetch", "--quiet", "--no-tags", url, fetch_rev]
+    quoted = " ".join(shlex.quote(c) for c in cmd)
+    try:
+        p = subprocess.run(cmd, capture_output=True, text=True, check=False, timeout=120)
+    except subprocess.TimeoutExpired:
+        return False, f"timed out after 120s\n  (command: {quoted})"
+    if p.returncode == 0:
+        return True, ""
+    err = (p.stderr or "").strip()
+    if not err and (p.stdout or "").strip():
+        err = (p.stdout or "").strip()
+    if not err:
+        err = f"exit code {p.returncode}"
+    return False, f"{err}\n  (command: {quoted})"
 
 
-def _ensure_n_tag_commit_from_canonical_upstream(variant: str, rev: str) -> bool:
-    """Ensure ``rev`` is available for ``git show`` using the ODH or RHDS canonical ``.git`` URL for ``-n`` tags."""
+def _ensure_commit_from_canonical_upstream(variant: str, rev: str) -> tuple[bool, str, str | None]:
+    """Ensure ``rev`` is available for ``git show`` via ``git fetch`` from the variant canonical repo."""
     url = _CANONICAL_REPO_URL[variant]
-    if _git_commit_exists(rev):
-        return True
-    return _git_fetch_commit_from(url, rev)
+    resolved_rev = _rev_for_git_fetch(url, rev)
+    if _git_commit_exists(resolved_rev):
+        return True, resolved_rev, None
+    ok, detail = _git_fetch_commit_from(url, resolved_rev)
+    if ok:
+        return True, None
+    return False, detail
 
 
 def _git_show_text(rev: str, rel_path: str) -> str | None:
@@ -379,6 +468,22 @@ def _git_show_text(rev: str, rel_path: str) -> str | None:
 def _format_dep_version(pep440: str) -> str:
     v = packaging.version.Version(pep440)
     return f"{v.major}.{v.minor}"
+
+
+def accelerator_stack_version_from_lockfile(lock_text: str, kind: str) -> str | None:
+    """Return major.minor CUDA or ROCm stack version embedded in lockfile URLs, if present.
+
+    uv-generated pylocks record the index in the header comment; wheel URLs repeat the same
+    ``cudaX.Y-ubi*`` / ``rocmX.Y-ubi*`` segment. CPU ``kind`` returns ``None``.
+
+    Scans only the first 4 KiB to avoid accidental matches deep in package metadata.
+    """
+    if kind not in ("cuda", "rocm"):
+        return None
+    head = lock_text[:4096]
+    rx = _CUDA_STACK_IN_PATH if kind == "cuda" else _ROCM_STACK_IN_PATH
+    m = rx.search(head)
+    return m.group(1) if m else None
 
 
 def _load_pylock_packages(pylock_text: str, python_minor: str) -> dict[str, dict[str, Any]]:
@@ -531,6 +636,9 @@ def _update_tag_annotations(
     tag: dict[str, Any],
     pylock_pkgs: dict[str, dict[str, Any]],
     python_display: str,
+    *,
+    cuda_stack_version: str | None = None,
+    rocm_stack_version: str | None = None,
 ) -> None:
     ann = tag.get("annotations") or {}
     sw_raw = ann.get("opendatahub.io/notebook-software")
@@ -552,14 +660,25 @@ def _update_tag_annotations(
         d["version"] = _format_dep_version(pkg["version"])
 
     # Keep ``notebook-software`` in sync with ``notebook-python-dependencies`` for the same display
-    # name (``test_image_pyprojects`` requires matching strings). Only Python / accelerators are special-cased.
-    sw_version_skip = frozenset({"CUDA", "ROCm", "R", "code-server"})
+    # name (``test_image_pyprojects`` requires matching strings). CUDA/ROCm stack labels come from
+    # the GPU lockfile path segment; R / code-server stay manual.
+    sw_version_skip = frozenset({"R", "code-server"})
     dep_version_by_name = {d["name"]: d["version"] for d in deps if d.get("name")}
     for s in sw:
         n = s.get("name")
         if n == "Python":
             s["version"] = f"v{python_display}"
+        elif n == "CUDA" and cuda_stack_version is not None:
+            s["version"] = cuda_stack_version
+        elif n == "ROCm" and rocm_stack_version is not None:
+            prev = s.get("version")
+            if isinstance(prev, str) and prev.lstrip().startswith("v"):
+                s["version"] = f"v{rocm_stack_version}"
+            else:
+                s["version"] = rocm_stack_version
         elif n in sw_version_skip:
+            continue
+        elif n in ("CUDA", "ROCm"):
             continue
         elif n in dep_version_by_name:
             s["version"] = dep_version_by_name[n]
@@ -622,6 +741,8 @@ def run_variant(variant: str, dry_run: bool) -> int:
             if idx >= len(tags):
                 break
             sha = _sha_for_tag(base_key, suffix, latest, released)
+            sha_desc = sha if sha else "<missing>"
+            print(f"check {path.name} tag {idx}: {base_key}{suffix} (commit={sha_desc})", file=sys.stderr)
             nb_dir = resolve_notebook_directory(candidates, base_key)
             if nb_dir is None:
                 want = notebook_dirname_from_base_key(base_key)
@@ -639,19 +760,36 @@ def run_variant(variant: str, dry_run: bool) -> int:
                 shown = _worktree_read_first_existing(rel_paths)
             else:
                 shown = None
+            if shown is not None:
+                rel_used, _text = shown
+                print(
+                    f"ok {path.name} tag {idx}: using worktree lockfile {rel_used}",
+                    file=sys.stderr,
+                )
 
             if shown is None:
                 if not sha:
                     print(f"skip {path.name} tag {idx}: no SHA for {base_key}{suffix}", file=sys.stderr)
                     continue
-                if suffix == "-n" and not _ensure_n_tag_commit_from_canonical_upstream(variant, sha):
+                # Released tags (e.g. ``-2025-2``) use ``commit.env`` SHAs that may live only on RHDS/ODH;
+                # a fresh checkout (e.g. GitHub Actions) does not contain them until we fetch.
+                ok_upstream, resolved_sha, fetch_err = _ensure_commit_from_canonical_upstream(variant, sha)
+                if not ok_upstream:
+                    url = _CANONICAL_REPO_URL[variant]
                     print(
-                        f"skip {path.name} tag {idx}: could not resolve commit {sha} via "
-                        f"{_CANONICAL_REPO_URL[variant]}",
+                        f"skip {path.name} tag {idx}: git fetch failed for commit {sha} from {url}\n"
+                        f"  {fetch_err}",
                         file=sys.stderr,
                     )
                     continue
-                shown = _git_show_first_existing(sha, rel_paths)
+                print(f"ok {path.name} tag {idx}: commit {resolved_sha} is available locally", file=sys.stderr)
+                shown = _git_show_first_existing(resolved_sha, rel_paths)
+                if shown is not None:
+                    rel_used, _text = shown
+                    print(
+                        f"ok {path.name} tag {idx}: got lockfile {rel_used} from {resolved_sha}",
+                        file=sys.stderr,
+                    )
             if shown is None:
                 print(
                     f"skip {path.name} tag {idx}: no lockfile (tried worktree/git {'; '.join(rel_paths)})",
@@ -665,7 +803,14 @@ def run_variant(variant: str, dry_run: bool) -> int:
             except Exception as e:
                 lockfile_errors.append(f"{path.name} tag {idx}: lockfile parse error: {e}")
                 continue
-            _update_tag_annotations(tags[idx], pkgs, py_minor)
+            accel_ver = accelerator_stack_version_from_lockfile(text, kind)
+            _update_tag_annotations(
+                tags[idx],
+                pkgs,
+                py_minor,
+                cuda_stack_version=accel_ver if kind == "cuda" else None,
+                rocm_stack_version=accel_ver if kind == "rocm" else None,
+            )
             changed += 1
 
         if not dry_run:
