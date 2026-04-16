@@ -95,6 +95,9 @@ jobs:
           ./uv run manifests/tools/generate_kustomization.py
 
       - name: Refresh ImageStream notebook dependency annotations from pylocks
+        env:
+          # Used to resolve abbreviated SHAs → full OID before ``git fetch`` (GitHub API); avoids rate limits.
+          GITHUB_TOKEN: ${{ github.token }}
         run: |
           ./uv run python manifests/tools/update_imagestream_annotations_from_pylock.py --variant odh
           ./uv run python manifests/tools/update_imagestream_annotations_from_pylock.py --variant rhoai
