@@ -142,7 +142,9 @@ def get_source_of_truth_filepath(
 ) -> Path:
     """
     Computes the absolute path of the imagestream manifest for the notebook under test.
-    This is a Python conversion of the shell function `_get_source_of_truth_filepath`.
+    Workbench paths mirror the shell function `_get_source_of_truth_filepath` in
+    ``scripts/test_jupyter_with_papermill.sh``. Runtime ``runtimes/...`` trees resolve to
+    ``runtime-*-imagestream.yaml`` (runtime ImageStreams do not use the shell helper today).
 
     Returns:
         The path to the imagestream manifest file, relative to manifests_directory.
@@ -162,10 +164,15 @@ def get_source_of_truth_filepath(
     filename = ""
 
     if "runtime" == notebook_id:
-        accelerator_prefix = f"{accelerator_flavor}-" if accelerator_flavor else ""
-        filename = f"jupyter-{accelerator_prefix}{scope}-{file_suffix}"
-        if accelerator_flavor == "cuda":
-            filename = f"jupyter-{scope}-{file_suffix}"
+        # Pipeline / Elyra runtime images use ``runtime-*-imagestream.yaml``, not workbench manifests.
+        if scope == "pytorch-llmcompressor":
+            filename = "runtime-pytorch-llmcompressor-imagestream.yaml"
+        elif accelerator_flavor == "rocm":
+            filename = f"runtime-rocm-{scope}-imagestream.yaml"
+        elif accelerator_flavor == "cuda" and scope in ("pytorch", "tensorflow"):
+            filename = f"runtime-{scope}-imagestream.yaml"
+        else:
+            filename = f"runtime-{scope}-imagestream.yaml"
 
     elif "jupyter" in notebook_id:
         if scope == JUPYTER_MINIMAL_NOTEBOOK_ID:
@@ -247,9 +254,7 @@ class TestManifests:
         assert path == _TEST_MANIFESTS_ODH_DIR / "base" / "code-server-notebook-imagestream.yaml"
 
     def test_runtime_pytorch_path(self):
-        metadata = extract_metadata_from_path(
-            Path("/Users/jdanek/IdeaProjects/notebooks/runtimes/rocm-tensorflow/ubi9-python-3.12")
-        )
+        metadata = extract_metadata_from_path(ROOT_DIR / "runtimes/rocm-tensorflow/ubi9-python-3.12")
         assert metadata == NotebookMetadata(
             type=NotebookType.RUNTIME,
             feature="runtime",
@@ -259,13 +264,11 @@ class TestManifests:
             accelerator_flavor="rocm",
         )
 
-    def test_jupyter_pytorch_path(self):
-        """We need to get path to the Jupyter imagestream, not to runtime imagestream"""
-        metadata = extract_metadata_from_path(
-            Path("/Users/jdanek/IdeaProjects/notebooks/runtimes/rocm-tensorflow/ubi9-python-3.12")
-        )
+    def test_runtime_rocm_tensorflow_manifest_path(self):
+        """Elyra runtime image dirs map to ``runtime-*`` ImageStreams, not workbench notebook manifests."""
+        metadata = extract_metadata_from_path(ROOT_DIR / "runtimes/rocm-tensorflow/ubi9-python-3.12")
         path = get_source_of_truth_filepath(manifests_directory=_TEST_MANIFESTS_ODH_DIR, metadata=metadata)
-        assert path == _TEST_MANIFESTS_ODH_DIR / "base" / "jupyter-rocm-tensorflow-notebook-imagestream.yaml"
+        assert path == _TEST_MANIFESTS_ODH_DIR / "base" / "runtime-rocm-tensorflow-imagestream.yaml"
 
     def test_source_of_truth_jupyter_tensorflow_rocm(self):
         metadata = extract_metadata_from_path(Path("notebooks/jupyter/rocm/tensorflow/ubi9-python-3.12"))

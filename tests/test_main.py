@@ -810,11 +810,19 @@ def load_manifests_file_for(directory: pathlib.Path, manifests_directory: pathli
     )
     current_tag = recommended_tags[0] if recommended_tags else imagestream["spec"]["tags"][0]
 
-    try:
-        sw = json.loads(current_tag["annotations"]["opendatahub.io/notebook-software"])
-        dep = json.loads(current_tag["annotations"]["opendatahub.io/notebook-python-dependencies"])
-    except Exception as e:
-        raise ValueError(f"invalid json syntax in {manifest_file}") from e
+    ann = current_tag.get("annotations") or {}
+    sw_raw = ann.get("opendatahub.io/notebook-software")
+    dep_raw = ann.get("opendatahub.io/notebook-python-dependencies")
+    if metadata.type == manifests.NotebookType.RUNTIME:
+        # Runtime ImageStreams only expose ``runtime-image-metadata`` today; there is nothing to compare.
+        sw = json.loads(sw_raw) if sw_raw else []
+        dep = json.loads(dep_raw) if dep_raw else []
+    else:
+        try:
+            sw = json.loads(sw_raw)
+            dep = json.loads(dep_raw)
+        except Exception as e:
+            raise ValueError(f"invalid json syntax in {manifest_file}") from e
 
     return Manifest(
         filename=manifest_file,
