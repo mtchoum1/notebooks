@@ -102,6 +102,23 @@ jobs:
       - name: Validate manifests (make test)
         run: make test
 
+      # ``uv pip compile`` rewrites the header ``--exclude-newer=…`` timestamp every run.
+      # When the solver output is unchanged, drop the working tree so we do not open a
+      # multi-file PR that only churns metadata (and avoids rebase conflicts on real PRs).
+      - name: Discard ephemeral-only lockfile renewal diff
+        run: |
+          set -euo pipefail
+          if git diff --quiet HEAD; then
+            echo "No changes vs HEAD."
+            exit 0
+          fi
+          if ./uv run python scripts/ci/lockfile_renewal_diff_is_metadata_only.py; then
+            echo "Only ephemeral lockfile metadata changed; discarding working tree changes."
+            git restore --source=HEAD --worktree .
+            exit 0
+          fi
+          echo "Substantive changes present; proceeding to PR creation."
+
       - name: Create Pull Request
         env:
           GH_TOKEN: ${{ secrets.GH_ACCESS_TOKEN }}
