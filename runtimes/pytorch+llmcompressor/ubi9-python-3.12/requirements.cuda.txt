@@ -276,9 +276,11 @@ numpy==2.3.5 ; python_full_version >= '3.12' and implementation_name == 'cpython
     --hash=sha256:42782d7032b4dbca2ce8bd5fe1ca4b8c032f51e51751c960ab77640a8b68bee9
 nvidia-ml-py==13.590.44 ; python_full_version >= '3.12' and implementation_name == 'cpython' and sys_platform == 'linux' \
     --hash=sha256:b75698f2ebe583aa2791e1ee0a1e3a9111bce7131cc8ae9eef7b42bdd6c99b26
-onnx==1.20.0 ; python_full_version >= '3.12' and implementation_name == 'cpython' and sys_platform == 'linux' \
-    --hash=sha256:28234619ee16e62bb0e594fc9ec5401ce44b8fac994f2703e45a6a3b0d716d3f \
-    --hash=sha256:e9f689c799513b64d229b7326062391bd2e2a38d78117f1f0485a4ce217c0131
+onnx==1.21.0 ; python_full_version >= '3.12' and implementation_name == 'cpython' and sys_platform == 'linux' \
+    --hash=sha256:0f9a406b3cc777105b52ee1b88fce8807589f40ca6d8edd70c0b6c1de10da53e \
+    --hash=sha256:a8c962a566adac924d533e2ad44e30f47484f6d1f5c2bd4411f7af67149d069d \
+    --hash=sha256:fd44a657eb47b8561b4a69eb93cd927ec79461b0189f22e381401922ce9585df \
+    --hash=sha256:38f076c28d64c809059b7f07efe9590034c77c5b429026c5590b18e5093eda32
 onnxconverter-common==1.16.0 ; python_full_version >= '3.12' and implementation_name == 'cpython' and sys_platform == 'linux' \
     --hash=sha256:0708e01164697ed99f5a3146374f2514fe76c07955620fce9e361e1525d9da69
 opentelemetry-api==1.41.0 ; python_full_version >= '3.12' and implementation_name == 'cpython' and sys_platform == 'linux' \

@@ -66,8 +66,8 @@ def _resolve_base_ref() -> str | None:
     env = (os.environ.get("NOTEBOOKS_DOWNGRADE_BASE_REF") or "").strip()
     candidates: list[str | None] = [
         env or None,
-        "origin/main",
-        "main",
+        "origin/timestamp-skip",
+        "timestamp-skip",
     ]
     for ref in candidates:
         if not ref:
