@@ -52,6 +52,10 @@ url = "https://download.pytorch.org/whl/cu128"
 explicit = true
 
 [tool.uv]
+override-dependencies = [
+    # CVE-2026-35536 CVE-2026-31958: tornado DoS and cookie injection
+    "tornado>=6.5.5",
+]
 
 environments = [
     "sys_platform == 'linux' and implementation_name == 'cpython'",
