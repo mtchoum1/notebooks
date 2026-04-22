@@ -35,6 +35,9 @@ dependencies = [
 environments = [
     "sys_platform == 'linux' and implementation_name == 'cpython'",
 ]
-
+override-dependencies = [
+    # RHAIENG-3755: CVE-2026-32597 PyJWT accepts unknown crit header extensions
+    "pyjwt>=2.12.1",
+]
 [tool.uv.sources]
 odh-notebooks-meta-runtime-elyra-deps = { path = "../../../dependencies/odh-notebooks-meta-runtime-elyra-deps" }
