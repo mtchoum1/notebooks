@@ -37,6 +37,11 @@ dependencies = [
     "wheel~=0.46.2",
 ]
 
+override-dependencies = [
+    # RHAIENG-4277 RHAIENG-4275: CVE-2026-34445 CVE-2026-27489 onnx vulnerabilities
+    "onnx>=1.21.0",
+]
+
 [tool.uv.sources]
 torch = { index = "pytorch-rocm" }
 torchvision = { index = "pytorch-rocm" }

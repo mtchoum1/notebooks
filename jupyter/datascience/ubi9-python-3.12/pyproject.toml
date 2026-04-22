@@ -52,6 +52,8 @@ environments = [
     "sys_platform == 'linux' and implementation_name == 'cpython'",
 ]
 override-dependencies = [
+    # RHAIENG-4277 RHAIENG-4275: CVE-2026-34445 CVE-2026-27489 onnx vulnerabilities
+    "onnx>=1.21.0",
     # RHAIENG-2458: CVE-2025-66418 urllib3 decompression vulnerability
     # Upstream: https://github.com/elyra-ai/elyra/issues/3325
     "urllib3>=2.6.0",

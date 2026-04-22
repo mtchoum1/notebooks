@@ -41,6 +41,8 @@ dependencies = [
 [tool.uv]
 
 override-dependencies = [
+    # RHAIENG-4277 RHAIENG-4275: CVE-2026-34445 CVE-2026-27489 onnx vulnerabilities
+    "onnx>=1.21.0",
     # tf2onnx has pinned protobuf version, that causes conflict with other packages
     "protobuf==6.31.1",
     "keras~=3.12.0"
