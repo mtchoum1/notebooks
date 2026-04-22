@@ -54,6 +54,8 @@ environments = [
     "sys_platform == 'linux' and implementation_name == 'cpython'",
 ]
 override-dependencies = [
+    # RHAIENG-4276 RHAIENG-4274: CVE-2026-34445 CVE-2026-27489 onnx vulnerabilities
+    "onnx>=1.21.0",
     # RHAIENG-3209: CVE-2026-25990  Pillow: Out-of-bounds Write
     # Upstream: https://github.com/vllm-project/llm-compressor/releases/tag/0.7.1.1
     "pillow>=12.1.1",

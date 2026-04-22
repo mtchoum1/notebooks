@@ -72,6 +72,8 @@ explicit = true
 [tool.uv]
 
 override-dependencies = [
+    # RHAIENG-4276 RHAIENG-4274: CVE-2026-34445 CVE-2026-27489 onnx vulnerabilities
+    "onnx>=1.21.0",
     # vllm is a requirement, however, as compressed-tensors is pinned, this can't be installed together
     "compressed-tensors",
     # RHAIENG-3209: CVE-2026-25990  Pillow: Out-of-bounds Write
