@@ -55,6 +55,8 @@ dependencies = [
 [tool.uv]
 
 override-dependencies = [
+    # RHAIENG-3754: CVE-2026-32274 Black arbitrary file writes via unsanitized cache path
+    "black>=26.1.0",
     # tf2onnx has pinned protobuf version, that causes conflict with other packages
     "protobuf==6.31.1",
     "keras~=3.12.0",
