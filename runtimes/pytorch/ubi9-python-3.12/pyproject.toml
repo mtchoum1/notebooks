@@ -51,3 +51,7 @@ explicit = true
 environments = [
     "sys_platform == 'linux' and implementation_name == 'cpython'",
 ]
+override-dependencies = [
+    # RHAIENG-3842: CVE-2026-30922 pyasn1 DoS via Unbounded Recursion
+    "pyasn1>=0.6.3",
+]
