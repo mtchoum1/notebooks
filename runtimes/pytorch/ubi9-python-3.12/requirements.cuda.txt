@@ -89,6 +89,7 @@ distlib==0.4.0 ; implementation_name == 'cpython' and sys_platform == 'linux' \
 dnspython==2.8.0 ; implementation_name == 'cpython' and sys_platform == 'linux' \
     --hash=sha256:db15ec16abf5022cddce18000862d6b7043ac477f8da1692590b98f3b2768c3e
 docker==7.1.0 ; implementation_name == 'cpython' and sys_platform == 'linux' \
+    --hash=sha256:b2254ca1c63fc9b832ecd64a468b51d842a72144a77abb1ea18332eb3442241a \
     --hash=sha256:acb703c0af5c7f047c2f662cd2ad62d9fe04d4903f9d082b48ae5aa091b7d3a5
 durationpy==0.10 ; implementation_name == 'cpython' and sys_platform == 'linux' \
     --hash=sha256:f98fb1112f38a6127e288ab1876922d3936d8324483bd7070d1b05889122ebac

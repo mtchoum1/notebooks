@@ -102,7 +102,8 @@ distlib==0.4.0 ; python_full_version >= '3.12' and implementation_name == 'cpyth
 dnspython==2.8.0 ; python_full_version >= '3.12' and implementation_name == 'cpython' and sys_platform == 'linux' \
     --hash=sha256:6b1e921b13fb1ec70831e09835668d41ba59b5ee4532b85f150e732875fcdb52
 docker==7.1.0 ; python_full_version >= '3.12' and implementation_name == 'cpython' and sys_platform == 'linux' \
-    --hash=sha256:8135c236a7bc1bde98f18380a379131b445b4a0f85757f88011e070f1d148309
+    --hash=sha256:8135c236a7bc1bde98f18380a379131b445b4a0f85757f88011e070f1d148309 \
+    --hash=sha256:a9327b722fddb8d9aa536fe011f7b6e10d695d32c8049682b193ccd7f1043f18
 docstring-parser==0.18.0 ; python_full_version >= '3.12' and implementation_name == 'cpython' and sys_platform == 'linux' \
     --hash=sha256:1adc60fdc3ed9bf35395fe8852348fab81df2324377d8860093ed79560bf7caf
 docstring-to-markdown==0.17 ; python_full_version >= '3.12' and implementation_name == 'cpython' and sys_platform == 'linux' \
