@@ -21,6 +21,21 @@ Use https://pypi.org/project/py-make/ or https://github.com/JetBrains/intellij-p
 
 project_dir = pathlib.Path(__file__).parent.parent.parent.absolute()
 
+
+def target_needs_rhel_subscription(target: str) -> bool:
+    """Return True when the build workflow should register RHEL entitlements on the runner.
+
+    RHEL- and AIPCC-derived accelerator bases ship DNF repos that point at cdn.redhat.com; ``dnf upgrade`` in the
+    Dockerfiles hits those repos and returns 403 without subscription-manager certificates (see mounts.conf step
+    in build-notebooks-TEMPLATE.yaml). Targets whose names contain ``rhel`` always needed this; CUDA/ROCm images
+    historically used ``ubi9`` in the target name while still building from RHEL-layer bases, so match those
+    prefixes explicitly.
+    """
+    if "rhel" in target:
+        return True
+    return target.startswith(("cuda-", "runtime-cuda-", "rocm-"))
+
+
 ARM64_COMPATIBLE = {
     "codeserver-ubi9-python-3.11",
     "codeserver-ubi9-python-3.12",
@@ -188,7 +203,7 @@ def main() -> None:
                         if "-python-3.12" in target
                         else "invalid-python-version",
                         "platform": platform,
-                        "subscription": "rhel" in target,
+                        "subscription": target_needs_rhel_subscription(target),
                     }
                     for (target, platform) in targets_with_platform
                 ],
@@ -214,6 +229,15 @@ if __name__ == "__main__":
 
 
 class SelfTests(unittest.TestCase):
+    def test_target_needs_rhel_subscription(self):
+        assert target_needs_rhel_subscription("cuda-rstudio-rhel9-python-3.11")
+        assert target_needs_rhel_subscription("cuda-jupyter-tensorflow-ubi9-python-3.12")
+        assert target_needs_rhel_subscription("runtime-cuda-tensorflow-ubi9-python-3.12")
+        assert target_needs_rhel_subscription("rocm-jupyter-minimal-ubi9-python-3.12")
+        assert target_needs_rhel_subscription("rocm-runtime-pytorch-ubi9-python-3.12")
+        assert not target_needs_rhel_subscription("jupyter-minimal-ubi9-python-3.12")
+        assert not target_needs_rhel_subscription("codeserver-ubi9-python-3.12")
+
     def test_select_changed_targets_dockerfile(self):
         targets = extract_image_targets(makefile_dir=project_dir)
 
