@@ -47,7 +47,6 @@ jobs:
         id: find
         env:
           IMAGE_REGISTRY: ${{ env.IMAGE_REGISTRY }}
-          GH_TOKEN: ${{ github.token }}
         shell: python
         # language=python
         run: |
@@ -65,8 +64,10 @@ jobs:
               "runtime-datascience-ubi9-python-3.12",
           ]
 
+          # GHCR tag listing is public for this package; token auth fails when the
+          # GITHUB_TOKEN lacks read:packages scope or comes from a fork context.
           result = subprocess.run(
-              ["skopeo", "list-tags", "--creds", f"token:{os.environ['GH_TOKEN']}", f"docker://{registry}"],
+              ["skopeo", "list-tags", f"docker://{registry}"],
               capture_output=True, text=True, timeout=180,
           )
           if result.returncode != 0:
