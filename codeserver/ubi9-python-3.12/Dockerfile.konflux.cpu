@@ -130,7 +130,7 @@ RUN . ${CODESERVER_SOURCE_CODE}/patches/codeserver-offline-env.sh && \
 
 RUN . ${CODESERVER_SOURCE_CODE}/patches/codeserver-offline-env.sh && \
     export KEEP_MODULES=1 && cd ${CODESERVER_SOURCE_PREFETCH} && \
-    npm run release:standalone
+    ./ci/build/build-standalone-release.sh
 
 # Sentinel file: downstream stages use COPY --from=rpm-base /tmp/control to wait for this stage.
 RUN echo "done" > /tmp/control

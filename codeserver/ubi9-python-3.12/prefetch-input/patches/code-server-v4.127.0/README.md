@@ -16,6 +16,7 @@ VS Code 1.127 already ships `@parcel/watcher@^2.5.6` from the npm registry, so t
 | **lib/vscode/build/gulpfile.reh.ts** | Adds `ppc64` and `s390x` to `BUILD_TARGETS` for native multi-arch hermetic builds. |
 | **ci/dev/postinstall.sh** | Runs `install-deps custom-packages` before `lib/vscode` so offline `npm ci` finds prefetched tarballs. |
 | **ci/build/build-vscode.sh** | Builds for current CPU arch with system Node; runs upstream 1.127 gulp targets (`compile-copilot-extension-full-build`, `core-ci`, `vscode-reh-web-*-ci`). |
+| **ci/build/build-standalone-release.sh** | Restores v4.106 `release:standalone` step removed upstream in v4.127; copies `release/` to `release-standalone/` for the final image COPY. |
 | **ripgrep/postinstall.js** | Copies ripgrep from `RIPGREP_BINARY_PATH` (RHOAI pip wheel) into `@vscode/ripgrep`. |
 
 **Argon2 (no prefetch):** root code-server `argon2` uses node-pre-gyp; `npm_config_argon2_binary_host_mirror` points at hermetic deps or falls back to gcc-toolset-14 source build.
