@@ -108,9 +108,20 @@ RUN cd ${CODESERVER_SOURCE_CODE} && \
 RUN . ${CODESERVER_SOURCE_CODE}/patches/codeserver-offline-env.sh && cd ${CODESERVER_SOURCE_PREFETCH} && \
     npm run build
 
-# [HERMETIC] Step 3: Build VS Code (the embedded editor)
+# [HERMETIC] Step 3: Build VS Code (the embedded editor).
+# Split into separate RUN steps so each gulp phase gets a fresh process tree
+# and peak RSS drops between copilot compile, core-ci, and reh-web packaging.
 RUN . ${CODESERVER_SOURCE_CODE}/patches/codeserver-offline-env.sh && cd ${CODESERVER_SOURCE_PREFETCH} && \
-    VERSION=${CODESERVER_VERSION/v/} npm run build:vscode
+    VERSION=${CODESERVER_VERSION/v/} ./ci/build/build-vscode.sh prepare
+
+RUN . ${CODESERVER_SOURCE_CODE}/patches/codeserver-offline-env.sh && cd ${CODESERVER_SOURCE_PREFETCH} && \
+    VERSION=${CODESERVER_VERSION/v/} ./ci/build/build-vscode.sh copilot
+
+RUN . ${CODESERVER_SOURCE_CODE}/patches/codeserver-offline-env.sh && cd ${CODESERVER_SOURCE_PREFETCH} && \
+    VERSION=${CODESERVER_VERSION/v/} ./ci/build/build-vscode.sh core
+
+RUN . ${CODESERVER_SOURCE_CODE}/patches/codeserver-offline-env.sh && cd ${CODESERVER_SOURCE_PREFETCH} && \
+    VERSION=${CODESERVER_VERSION/v/} ./ci/build/build-vscode.sh package
 
 # [HERMETIC] Step 4: Create release bundle.
 RUN . ${CODESERVER_SOURCE_CODE}/patches/codeserver-offline-env.sh && \
