@@ -61,6 +61,7 @@ RUN dnf module enable nodejs:24 -y
 # libxkbfile-devel = util-macros + libxkbfile (Previously built from source)
 RUN dnf install -y \
         nodejs nodejs-devel npm \
+        git git-lfs \
         jq patch libtool rsync gettext gcc-toolset-14 gcc-toolset-14-libatomic-devel \
         krb5-devel libX11-devel libxkbfile-devel && \
     dnf clean all
