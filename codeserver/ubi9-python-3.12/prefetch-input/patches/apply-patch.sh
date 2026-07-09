@@ -99,6 +99,25 @@ if [[ "$ARCH" == "amd64" || "$ARCH" == "arm64" || "$ARCH" == "ppc64le" || "$ARCH
         echo "WARNING: ripgrep postinstall not found at ${RIPGREP_PATCHED}"
     fi
 
+    # [TREE-SITTER] Node 24 V8 headers require C++20, but tree-sitter@0.22.4 pins
+    # c++17 in binding.gyp (fixed upstream in 0.25.1, not yet on npm).  Hermetic
+    # builds use NPM_CONFIG_NODEDIR=/usr (nodejs-devel 24), so bump the standard.
+    TREE_SITTER_TGZ=$(find /cachi2/output/deps/npm -name "tree-sitter-0.22.4.tgz" -type f 2>/dev/null | head -1)
+    if [[ -n "${TREE_SITTER_TGZ}" ]]; then
+        echo "Patching tree-sitter@0.22.4 binding.gyp for Node 24 (c++17 -> c++20)"
+        tmpdir=$(mktemp -d)
+        tar xzf "${TREE_SITTER_TGZ}" -C "$tmpdir"
+        sed -i 's/c++17/c++20/g' "$tmpdir/package/binding.gyp"
+        tar czf "${TREE_SITTER_TGZ}" -C "$tmpdir" package
+        rm -rf "$tmpdir"
+        if [[ -f lib/vscode/build/package-lock.json ]]; then
+            jq 'del(.packages["node_modules/tree-sitter"].integrity)' lib/vscode/build/package-lock.json \
+                > /tmp/lock-tree-sitter.json && mv /tmp/lock-tree-sitter.json lib/vscode/build/package-lock.json
+        fi
+    else
+        echo "WARNING: tree-sitter-0.22.4.tgz not found in /cachi2/output/deps/npm/"
+    fi
+
     if [[ "$ARCH" == "ppc64le" || "$ARCH" == "s390x" ]]; then
         # Try to patch the cached tarball (remove postinstall from its package.json)
         VSCE_TGZ=$(find /cachi2/output/deps/npm -name "*vsce-sign*.tgz" -type f 2>/dev/null | head -1)
