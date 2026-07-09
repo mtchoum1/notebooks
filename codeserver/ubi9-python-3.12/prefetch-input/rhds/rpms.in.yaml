@@ -28,7 +28,7 @@ arches:
   - ppc64le
   - s390x
 
-moduleEnable: [nodejs:22]
+moduleEnable: [nodejs:24]
 
 packages:
 
@@ -64,7 +64,7 @@ packages:
   - automake
   - libtool
 
-  # Node.js (module nodejs:22)
+  # Node.js (module nodejs:24; required by code-server 4.125+)
   - nodejs-devel
   - nodejs-packaging
   - npm

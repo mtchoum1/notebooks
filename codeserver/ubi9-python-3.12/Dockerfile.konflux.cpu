@@ -26,7 +26,7 @@ ARG BASE_IMAGE
 #   - Node.js/npm: installed from prefetched RPMs
 #   - npm dependencies: package-lock.json resolved URLs rewritten to file:///cachi2/...
 #   - node-gyp: system headers via nodejs-devel RPM (NPM_CONFIG_NODEDIR=/usr),
-#     VS Code remote headers (22.20.0) from prefetched tarballs, ripgrep from RHOAI Python wheel (deps/pip)
+#     ripgrep from RHOAI Python wheel (deps/pip)
 #   - Build scripts patched to avoid any network fetches (patches/*.patch)
 ############################################################################################
 # e.g., registry.access.redhat.com/ubi9/python-312:latest
@@ -45,18 +45,18 @@ ENV CODESERVER_SOURCE_PREFETCH=${CODESERVER_SOURCE_CODE}/prefetch-input/code-ser
 ARG BASE_IMAGE
 ARG GHA_BUILD=false
 
-ARG NODE_VERSION=22.21.1
-ARG CODESERVER_VERSION=v4.106.3
+ARG NODE_VERSION=24.15.0
+ARG CODESERVER_VERSION=v4.127.0
 
 # [HERMETIC] Import GPG keys for prefetched RPM verification.
 # CentOS key imported only if prefetched (present in Dockerfile.cpu; may be absent in Konflux).
 RUN rpm --import /cachi2/output/deps/generic/RPM-GPG-KEY-CentOS-Official || true
 RUN rpm --import /etc/pki/rpm-gpg/RPM-GPG-KEY-redhat-release
 
-# [HERMETIC] Enable nodejs:22 module stream so DNF can resolve nodejs-devel
+# [HERMETIC] Enable nodejs:24 module stream so DNF can resolve nodejs-devel
 # and other modular packages. The hermeto repos include module metadata
-# (modules.yaml) because rpms.in.yaml declares moduleEnable: [nodejs:22].
-RUN dnf module enable nodejs:22 -y
+# (modules.yaml) because rpms.in.yaml declares moduleEnable: [nodejs:24].
+RUN dnf module enable nodejs:24 -y
 
 # libxkbfile-devel = util-macros + libxkbfile (Previously built from source)
 RUN dnf install -y \
@@ -142,8 +142,8 @@ USER 0
 RUN rpm --import /cachi2/output/deps/generic/RPM-GPG-KEY-CentOS-Official || true
 RUN rpm --import /etc/pki/rpm-gpg/RPM-GPG-KEY-redhat-release
 
-# [HERMETIC] Enable nodejs:22 module stream (see rpm-base comment).
-RUN dnf module enable nodejs:22 -y
+# [HERMETIC] Enable nodejs:24 module stream (see rpm-base comment).
+RUN dnf module enable nodejs:24 -y
 
 # [HERMETIC] Install Node.js runtime from prefetched RPMs.
 RUN dnf install -y nodejs npm && dnf clean all
@@ -179,7 +179,7 @@ ARG TARGETOS
 ARG TARGETARCH
 
 ARG CODESERVER_SOURCE_CODE=codeserver/ubi9-python-3.12
-ARG CODESERVER_VERSION=v4.106.3
+ARG CODESERVER_VERSION=v4.127.0
 ARG PYLOCK_FLAVOR
 
 ARG LABEL_REGISTRY_PREFIX
@@ -199,8 +199,8 @@ USER 0
 
 WORKDIR /opt/app-root/bin
 
-# [HERMETIC] Enable nodejs:22 module stream (see rpm-base comment).
-RUN dnf module enable nodejs:22 -y
+# [HERMETIC] Enable nodejs:24 module stream (see rpm-base comment).
+RUN dnf module enable nodejs:24 -y
 
 # [HERMETIC] Install useful OS packages from prefetched RPMs.
 # nodejs: provides libnode.so needed at runtime by code-server's bundled node binary.
