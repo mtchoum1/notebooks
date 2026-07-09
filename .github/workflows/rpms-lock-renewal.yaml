@@ -55,6 +55,10 @@ jobs:
 
       - name: Checkout code
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
+        env:
+          # Avoid smudging LFS files during checkout; mis-tracked *.vsix blobs
+          # otherwise leave the tree dirty and block git-crypt unlock.
+          GIT_LFS_SKIP_SMUDGE: 1
         with:
           ref: ${{ env.BRANCH }}
           persist-credentials: false
@@ -75,6 +79,19 @@ jobs:
         uses: ./.github/actions/apt-install
         with:
           packages: git-crypt
+
+      - name: Normalize git tree before git-crypt unlock
+        if: env.VARIANT == 'rhds'
+        run: |
+          # git-crypt unlock requires `git status -uno` to be empty. Ubuntu runners
+          # ship Git LFS; *.vsix files committed without LFS pointers show as modified.
+          git lfs install --local --skip-smudge
+          git checkout -f HEAD
+          if [[ -n "$(git status -uno --porcelain)" ]]; then
+            echo "Working tree still dirty before git-crypt unlock:" >&2
+            git status -uno --porcelain >&2
+            exit 1
+          fi
 
       - name: Unlock encrypted secrets with git-crypt
         if: env.VARIANT == 'rhds'
