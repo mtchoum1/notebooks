@@ -135,11 +135,19 @@ CONTAINER_WORKDIR="/workspace/$SCRIPTS_PATH"
 echo "--- Generating Lockfile using rpm-lockfile-prototype --"
 podman_run_args=(--rm -i)
 [[ -t 1 ]] && podman_run_args+=(-t)
+podman_env_args=(-e "PREFETCH_INPUT_DIR=$PREFETCH_DIR")
+if [[ -n "$ACTIVATION_KEY" ]] && [[ -n "$ORG" ]]; then
+  podman_env_args+=(
+    -e "SUBSCRIPTION_ACTIVATION_KEY=$ACTIVATION_KEY"
+    -e "SUBSCRIPTION_ORG=$ORG"
+    -e "RHEL_VERSION=$RHEL_VERSION"
+  )
+fi
 podman run "${podman_run_args[@]}" \
     -v "$(pwd):/workspace" \
     --platform=linux/x86_64 \
     -w "$CONTAINER_WORKDIR" \
-    -e PREFETCH_INPUT_DIR="$PREFETCH_DIR" \
+    "${podman_env_args[@]}" \
     localhost/notebook-rpm-lockfile:latest \
     ./helpers/rpm-lockfile-generate.sh
 
