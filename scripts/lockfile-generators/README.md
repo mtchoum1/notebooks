@@ -347,8 +347,8 @@ input:
     #   filename: openshift-client-linux-x86_64.tar.gz
 
     # VSCode marketplace extensions
-    - url: https://github.com/microsoft/vscode-js-debug/releases/download/v1.105.0/ms-vscode.js-debug.1.105.0.vsix
-      filename: ms-vscode.js-debug.1.105.0.vsix
+    - url: https://github.com/microsoft/vscode-js-debug/releases/download/v1.117.0/ms-vscode.js-debug.1.117.0.vsix
+      filename: ms-vscode.js-debug.1.117.0.vsix
 ```
 
 **Output — `artifacts.lock.yaml`** (auto-generated, do not edit)

@@ -44,8 +44,16 @@ When adding or updating extensions, place the downloaded `.vsix` artifacts under
 
 For `codeserver/ubi9-python-3.12`, the image expects these `.vsix` files in `utils/`:
 
-- **ms-python.python** 2026.0.0: <https://open-vsx.org/api/ms-python/python/2026.0.0/file/ms-python.python-2026.0.0.vsix>
-- **ms-toolsai.jupyter** 2025.9.1: <https://open-vsx.org/api/ms-toolsai/jupyter/2025.9.1/file/ms-toolsai.jupyter-2025.9.1.vsix>
+**User-installed extensions (final image stage):**
+
+- **ms-python.python** 2026.0.0 (`engines.vscode`: ^1.95.0): <https://open-vsx.org/api/ms-python/python/2026.0.0/file/ms-python.python-2026.0.0.vsix>
+- **ms-toolsai.jupyter** 2025.9.1 (`engines.vscode`: ^1.105.0): <https://open-vsx.org/api/ms-toolsai/jupyter/2025.9.1/file/ms-toolsai.jupyter-2025.9.1.vsix>
+
+**Built-in VS Code extensions (hermetic build; versions must match `lib/vscode/product.json` for 1.127):**
+
+- **ms-vscode.js-debug** 1.117.0: <https://open-vsx.org/api/ms-vscode/js-debug/1.117.0/file/ms-vscode.js-debug-1.117.0.vsix> (save as `ms-vscode.js-debug.1.117.0.vsix`)
+- **ms-vscode.js-debug-companion** 1.1.3: <https://open-vsx.org/api/ms-vscode/js-debug-companion/1.1.3/file/ms-vscode.js-debug-companion-1.1.3.vsix>
+- **ms-vscode.vscode-js-profile-table** 1.0.10: <https://open-vsx.org/api/ms-vscode/vscode-js-profile-table/1.0.10/file/ms-vscode.vscode-js-profile-table-1.0.10.vsix>
 
 Download with `curl -o <filename> <url>` and place under `codeserver/ubi9-python-3.12/utils/`.
 
