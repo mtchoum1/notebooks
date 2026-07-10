@@ -292,8 +292,8 @@ Repos are injected by the **infrastructure**, not by the Dockerfile:
 
 Both environments replace the base image's default repos with hermeto-generated
 repos. These repos include module metadata (`modules.yaml`) because
-`rpms.in.yaml` declares `moduleEnable: [nodejs:22]`. The Dockerfile then runs
-`dnf module enable nodejs:22 -y` in each stage that installs nodejs packages.
+`rpms.in.yaml` declares `moduleEnable: [nodejs:24]`. The Dockerfile then runs
+`dnf module enable nodejs:24 -y` in each stage that installs nodejs packages.
 
 ---
 

@@ -73,12 +73,13 @@ if [[ "$ARCH" == "amd64" || "$ARCH" == "arm64" || "$ARCH" == "ppc64le" || "$ARCH
     #   npm documentation (see github.com/npm/cli/issues/2606), but patching the tarball
     #   adds defence in depth.
     #
-    # [RIPGREP] Overwrite @vscode/ripgrep postinstall in the cached npm tarball with our
-    # patched version (ripgrep/postinstall.js). When RIPGREP_BINARY_PATH is set (by
-    # setup-offline-binaries.sh from the RHOAI Python wheel), the binary is copied from
-    # there; otherwise the script falls back to downloading the prebuilt v13.0.0-13.
+    # [RIPGREP] VS Code 1.127+ depends on @vscode/ripgrep-universal (prebuilt
+    # multi-arch binaries, no postinstall).  Legacy @vscode/ripgrep used a
+    # download postinstall patched via ripgrep/postinstall.js + RIPGREP_BINARY_PATH.
+    # Only patch the legacy tarball — never ripgrep-universal (patching it corrupts
+    # the cache and breaks npm ci integrity checks).
     RIPGREP_PATCHED="${CODESERVER_SOURCE_PREFETCH}/ripgrep/postinstall.js"
-    RIPGREP_TGZ=$(find /cachi2/output/deps/npm -name "*ripgrep*.tgz" -type f 2>/dev/null | head -1)
+    RIPGREP_TGZ=$(find /cachi2/output/deps/npm -name "vscode-ripgrep-*.tgz" ! -name "*ripgrep-universal*" -type f 2>/dev/null | head -1)
     if [[ -n "${RIPGREP_TGZ}" && -f "${RIPGREP_PATCHED}" ]]; then
         echo "Patching @vscode/ripgrep: overwrite with ${RIPGREP_PATCHED}"
         tmpdir=$(mktemp -d)
@@ -86,14 +87,35 @@ if [[ "$ARCH" == "amd64" || "$ARCH" == "arm64" || "$ARCH" == "ppc64le" || "$ARCH
         cp "${RIPGREP_PATCHED}" "$tmpdir/package/lib/postinstall.js"
         tar czf "${RIPGREP_TGZ}" -C "$tmpdir" package
         rm -rf "$tmpdir"
-        # Strip integrity so npm accepts the modified tarball (lib/vscode, remote, and build all depend on @vscode/ripgrep).
+        # Strip integrity so npm accepts the modified tarball.
         for lock in lib/vscode/package-lock.json lib/vscode/remote/package-lock.json lib/vscode/build/package-lock.json; do
-            jq 'del(.packages["node_modules/@vscode/ripgrep"].integrity)' "$lock" > /tmp/lock-ripgrep.json && mv /tmp/lock-ripgrep.json "$lock"
+            if [[ -f "$lock" ]] && jq -e '.packages["node_modules/@vscode/ripgrep"]' "$lock" >/dev/null 2>&1; then
+                jq 'del(.packages["node_modules/@vscode/ripgrep"].integrity)' "$lock" > /tmp/lock-ripgrep.json && mv /tmp/lock-ripgrep.json "$lock"
+            fi
         done
     elif [[ -z "${RIPGREP_TGZ}" ]]; then
-        echo "WARNING: @vscode/ripgrep tarball not found in /cachi2/output/deps/npm/"
+        echo "No legacy @vscode/ripgrep tarball in cache (ripgrep-universal needs no patch)"
     elif [[ ! -f "${RIPGREP_PATCHED}" ]]; then
         echo "WARNING: ripgrep postinstall not found at ${RIPGREP_PATCHED}"
+    fi
+
+    # [TREE-SITTER] Node 24 V8 headers require C++20, but tree-sitter@0.22.4 pins
+    # c++17 in binding.gyp (fixed upstream in 0.25.1, not yet on npm).  Hermetic
+    # builds use NPM_CONFIG_NODEDIR=/usr (nodejs-devel 24), so bump the standard.
+    TREE_SITTER_TGZ=$(find /cachi2/output/deps/npm -name "tree-sitter-0.22.4.tgz" -type f 2>/dev/null | head -1)
+    if [[ -n "${TREE_SITTER_TGZ}" ]]; then
+        echo "Patching tree-sitter@0.22.4 binding.gyp for Node 24 (c++17 -> c++20)"
+        tmpdir=$(mktemp -d)
+        tar xzf "${TREE_SITTER_TGZ}" -C "$tmpdir"
+        sed -i 's/c++17/c++20/g' "$tmpdir/package/binding.gyp"
+        tar czf "${TREE_SITTER_TGZ}" -C "$tmpdir" package
+        rm -rf "$tmpdir"
+        if [[ -f lib/vscode/build/package-lock.json ]]; then
+            jq 'del(.packages["node_modules/tree-sitter"].integrity)' lib/vscode/build/package-lock.json \
+                > /tmp/lock-tree-sitter.json && mv /tmp/lock-tree-sitter.json lib/vscode/build/package-lock.json
+        fi
+    else
+        echo "WARNING: tree-sitter-0.22.4.tgz not found in /cachi2/output/deps/npm/"
     fi
 
     if [[ "$ARCH" == "ppc64le" || "$ARCH" == "s390x" ]]; then

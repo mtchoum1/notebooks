@@ -117,9 +117,10 @@ jobs:
       - name: Unlock encrypted secrets with git-crypt
         if: ${{ inputs.subscription }}
         run: |
-          echo "${GIT_CRYPT_KEY}" | base64 --decode > ./git-crypt-key
-          git-crypt unlock ./git-crypt-key
-          rm ./git-crypt-key
+          key_file="$(mktemp)"
+          echo "${GIT_CRYPT_KEY}" | base64 --decode > "${key_file}"
+          trap 'rm -f "${key_file}"' EXIT
+          git-crypt unlock "${key_file}"
         env:
           GIT_CRYPT_KEY: ${{ secrets.GIT_CRYPT_KEY }}
 

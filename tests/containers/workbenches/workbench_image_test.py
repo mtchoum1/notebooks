@@ -133,6 +133,9 @@ class TestWorkbenchImage:
                     container,
                     extra_allowed=[
                         "Unable to retrieve mac address (unexpected format)",
+                        # Node.js 24 emits DEP0169 for legacy url.parse() in code-server 4.127.
+                        "[DEP0169] DeprecationWarning",
+                        "trace-deprecation",
                     ],
                 )
 

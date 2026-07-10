@@ -60,8 +60,26 @@ fi
 
 pushd "/workspace/$PREFETCH_INPUT_DIR" >/dev/null
     if command -v subscription-manager &>/dev/null; then
-        overall_status=$(subscription-manager status 2>/dev/null | grep "Overall Status" | awk -F': ' '{print $2}' || true)
-        echo "System Registration Status: $overall_status"
+        ACTIVATION_KEY="${SUBSCRIPTION_ACTIVATION_KEY:-${ACTIVATION_KEY:-}}"
+        ORG_ID="${SUBSCRIPTION_ORG:-${ORG:-}}"
+        RHEL_RELEASE="${RHEL_VERSION:-9.6}"
+
+        overall_status=$(subscription-manager status 2>/dev/null | grep "Overall Status" | awk -F': ' '{print $2}' | xargs || true)
+        echo "System Registration Status: ${overall_status:-unknown}"
+
+        # Registration during `podman build` does not stay active in `podman run`
+        # (CI logs show "Disabled" here even after a successful build-time register).
+        if [[ "${overall_status,,}" != "current" ]] && [[ -n "$ACTIVATION_KEY" && -n "$ORG_ID" ]]; then
+            echo "Re-registering subscription for lockfile generation..."
+            subscription-manager register --force \
+                --org="$ORG_ID" \
+                --activationkey="$ACTIVATION_KEY"
+            subscription-manager release --set="$RHEL_RELEASE"
+            overall_status=$(subscription-manager status 2>/dev/null | grep "Overall Status" | awk -F': ' '{print $2}' | xargs || true)
+            echo "System Registration Status after re-register: ${overall_status:-unknown}"
+        elif [[ "${overall_status,,}" != "current" ]]; then
+            echo "WARNING: subscription is not current and no activation key was provided." >&2
+        fi
 
         # RHOAI/AIPCC runtime images use RHEL 9.6 EUS repos (baseos/appstream/CRB).
         # Without EUS enabled, rpm-lockfile-prototype resolves system RPMs like python3
