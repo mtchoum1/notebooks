@@ -30,7 +30,12 @@ main() {
   chmod 755 "$RELEASE_PATH/lib/node"
 
   pushd "$RELEASE_PATH"
-  npm install --unsafe-perm --omit=dev
+  # Hermetic builds set KEEP_MODULES=1 so build-release.sh already copied
+  # production node_modules.  npm install would re-run postinstall.sh, which
+  # hard-requires node v22 while ODH rpm-base uses nodejs:24.
+  if [[ "${KEEP_MODULES:-0}" != 1 ]]; then
+    npm install --unsafe-perm --omit=dev
+  fi
   # Code deletes some files from the extension node_modules directory which
   # leaves broken symlinks in the corresponding .bin directory.  nfpm will fail
   # on these broken symlinks so clean them up.
