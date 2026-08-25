@@ -9,9 +9,6 @@ Hermetic baseline Elyra pipeline runtime image with Python 3.12 on UBI 9.
   `--no-index --find-links /cachi2/output/deps/pip`.
 - Keeps Elyra/Kale execution capability with a lean Python footprint (no
   datascience / DB-connector stack).
-- **Multi-arch**: Konflux builds all four Linux arches; Elyra/Kale meta-package deps
-  install on **x86_64 + aarch64 only**. ppc64le/s390x get uv/wheel/setuptools/micropipenv.
-  See marker-gated deps and `[tool.uv] required-environments` in `pyproject.toml`.
 
 ## Local build
 
@@ -20,15 +17,14 @@ uv sync --locked
 make runtime-baseline-ubi9-python-3.12
 ```
 
-For ODH local builds, `build-args/cpu.conf` uses the c9s `odh-base-image-cpu`
-(`quay.io/opendatahub/odh-base-image-cpu-py312-c9s`). The downstream RHOAI
-variant continues to use `build-args/konflux.cpu.conf`.
+For ODH local builds, `build-args/cpu.conf` supplies the baseline ODH settings.
+The downstream RHOAI variant continues to use `build-args/konflux.cpu.conf`.
 
 ## Python lockfile flow
 
 - `pyproject.toml` is the source of truth
 - `pylock.toml` is generated in place at the image root
-- `requirements.cpu.txt` is generated from that `pylock.toml` (pip/Cachi2 format; default `el9-fallback` omits sdist hashes when EL9 wheels exist)
+- `requirements.cpu.txt` is generated from that `pylock.toml` (pip/Cachi2 format)
 - `make refresh-lock-files` and `create-requirements-lockfile.sh` detect this
   layout automatically
 - Dockerfiles install with `uv pip install --no-index --find-links /cachi2/output/deps/pip`
@@ -49,8 +45,6 @@ make refresh-lock-files INDEX_MODE=public-index DIR=runtimes/baseline/ubi9-pytho
 
 ## CI and Konflux
 
-- ODH PR and push PipelineRuns live under `.tekton/` (`*-c9s-pull-request.yaml` / `*-c9s-push.yaml`)
-- PR pipelines path-filter to this image; they do not run on every PR
-- Manual PR trigger: `/build-runtime-baseline` (also `/build-konflux` / `/kfbuild-all`)
+- ODH PR PipelineRuns live under `.tekton/` (`*-c9s-pull-request.yaml`)
+- Manual PR trigger: `/build-runtime-baseline`
 - ODH Konflux builds are hermetic (`hermetic: 'true'`) with RPM, generic, and pip prefetch
-- Push builds (stable / `opendatahub-builds`) publish `odh-stable` and `3.6_ea2-v1.49` to `quay.io/opendatahub/odh-pipeline-runtime-baseline-cpu-py312-c9s`
