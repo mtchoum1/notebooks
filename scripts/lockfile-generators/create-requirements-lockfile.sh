@@ -146,6 +146,10 @@ echo "=== Step 2: Converting $(basename "$PYLOCK_FILE") → requirements.${FLAVO
 if [[ -n "$REQUIREMENTS_INDEX_URL" ]]; then
   python3 "${SCRIPTS_PATH}/helpers/pylock-to-requirements.py" \
       "$PYLOCK_FILE" "$REQUIREMENTS_FILE" "$REQUIREMENTS_INDEX_URL"
+elif [[ "$PYLOCKS_MODE" == "public-index" ]]; then
+  python3 "${SCRIPTS_PATH}/helpers/pylock-to-requirements.py" \
+      --sdist-hashes prefer \
+      "$PYLOCK_FILE" "$REQUIREMENTS_FILE"
 else
   python3 "${SCRIPTS_PATH}/helpers/pylock-to-requirements.py" \
       "$PYLOCK_FILE" "$REQUIREMENTS_FILE"
@@ -154,6 +158,26 @@ fi
 echo ""
 echo "--- Done: ${REQUIREMENTS_FILE} ---"
 wc -l "${REQUIREMENTS_FILE}"
+
+# =========================================================================
+# Step 2b: PEP 517 build requirements for Hermeto sdist prefetch
+#
+# Public-index images that install from /cachi2/output/deps/pip need a fully
+# resolved requirements-build.<flavor>.txt so Hermeto can prefetch hatchling,
+# maturin, setuptools, etc. before the offline wheel build.
+# =========================================================================
+REQUIREMENTS_BUILD_FILE="${PROJECT_DIR}/requirements-build.${FLAVOR}.txt"
+if [[ "$PYLOCKS_MODE" == "public-index" ]] && grep -q '/cachi2/output/deps/pip' "${PROJECT_DIR}"/Dockerfile.konflux.* 2>/dev/null; then
+  echo ""
+  echo "=== Step 2b: Generating requirements-build.${FLAVOR}.txt ==="
+  # Image Python (ubi9-python-3.12 → 3.12). pybuild-deps compile() RecursionError
+  # on this lock; the helper pins first-level PEP 518 requires instead.
+  BUILD_PYTHON="${PROJECT_DIR##*python-}"
+  ./uv run python3 "${SCRIPTS_PATH}/helpers/generate-requirements-build.py" \
+      "$REQUIREMENTS_FILE" "$REQUIREMENTS_BUILD_FILE" --python "${BUILD_PYTHON}"
+  echo "--- Done: ${REQUIREMENTS_BUILD_FILE} ---"
+  wc -l "${REQUIREMENTS_BUILD_FILE}"
+fi
 
 # =========================================================================
 # Step 3 (optional): Download all wheels from pylock.toml
@@ -258,6 +282,9 @@ echo ""
 echo "=== All done ==="
 echo "  pylock.toml      : ${PYLOCK_FILE}"
 echo "  requirements     : ${REQUIREMENTS_FILE}"
+if [[ -f "${REQUIREMENTS_BUILD_FILE:-}" ]]; then
+  echo "  requirements-build: ${REQUIREMENTS_BUILD_FILE}"
+fi
 if [[ "$DO_DOWNLOAD" == true ]]; then
   echo "  wheels           : cachi2/output/deps/pip/"
 fi

@@ -297,6 +297,8 @@ def test_generate_requirements_txt_public_index_uses_root_pylock_without_index_u
     assert captured_cmd == [
         pg.sys.executable,
         str(pg.PYLOCK_TO_REQUIREMENTS),
+        "--sdist-hashes",
+        "prefer",
         str(project_dir / "pylock.toml"),
         str(project_dir / "requirements.cpu.txt"),
     ], f"unexpected public-index pylock-to-requirements command: {captured_cmd}"
@@ -360,6 +362,8 @@ def test_process_directory_public_index_requirements_only(
     assert captured_cmd == [
         pg.sys.executable,
         str(pg.PYLOCK_TO_REQUIREMENTS),
+        "--sdist-hashes",
+        "prefer",
         str(project_dir / "pylock.toml"),
         str(project_dir / "requirements.cpu.txt"),
     ], f"unexpected --requirements-only command: {captured_cmd}"
@@ -392,9 +396,62 @@ def test_process_directory_public_index_generates_requirements_after_lock(
     assert cmds[-1] == [
         pg.sys.executable,
         str(pg.PYLOCK_TO_REQUIREMENTS),
+        "--sdist-hashes",
+        "prefer",
         str(project_dir / "pylock.toml"),
         str(project_dir / "requirements.cpu.txt"),
     ], f"last command should convert root pylock.toml: {cmds[-1]}"
+
+
+def test_uses_hermeto_pip_sdists(tmp_path: Path) -> None:
+    project_dir = tmp_path / "jupyter" / "baseline" / "ubi9-python-3.12"
+    project_dir.mkdir(parents=True)
+    (project_dir / "Dockerfile.konflux.cpu").write_text("FROM scratch\n", encoding="utf-8")
+    assert pg.uses_hermeto_pip_sdists(project_dir) is False, "plain Dockerfile should not look like sdist prefetch"
+
+    (project_dir / "Dockerfile.konflux.cpu").write_text(
+        "uv pip install --find-links /cachi2/output/deps/pip\n",
+        encoding="utf-8",
+    )
+    assert pg.uses_hermeto_pip_sdists(project_dir) is True, "Dockerfile with pip cache path should match"
+
+
+def test_process_directory_public_index_generates_requirements_build_for_sdist(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    project_dir = _public_index_project(tmp_path)
+    (project_dir / "Dockerfile.konflux.cpu").write_text(
+        "uv pip install --find-links /cachi2/output/deps/pip\n",
+        encoding="utf-8",
+    )
+    cmds: list[list[str]] = []
+
+    def fake_run(cmd, **kwargs):
+        cmds.append(list(cmd))
+        return pg.subprocess.CompletedProcess(args=cmd, returncode=0, stdout="", stderr="")
+
+    monkeypatch.setattr(pg.subprocess, "run", fake_run)
+
+    _path, success, _log = pg.process_directory(
+        project_dir,
+        pg.IndexMode.public_index,
+        False,
+        False,
+        "2026-01-01T00:00:00Z",
+        requirements_only=True,
+    )
+
+    assert success is True, "sdist public-index requirements-build generation should succeed"
+    helper = str(pg.ROOT_DIR / "scripts" / "lockfile-generators" / "helpers" / "generate-requirements-build.py")
+    assert cmds[-1] == [
+        pg.sys.executable,
+        helper,
+        str(project_dir / "requirements.cpu.txt"),
+        str(project_dir / "requirements-build.cpu.txt"),
+        "--python",
+        "3.12",
+    ], f"last command should generate requirements-build: {cmds[-1]}"
 
 
 def test_image_project_dir_for_repo_file_jupyter(repo_root: Path) -> None:

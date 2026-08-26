@@ -686,7 +686,14 @@ def generate_requirements_txt(
     requirements_path = project_dir / f"requirements.{flavor}.txt"
     if public_index:
         pylock_path = project_dir / "pylock.toml"
-        cmd = [sys.executable, str(PYLOCK_TO_REQUIREMENTS), str(pylock_path), str(requirements_path)]
+        cmd = [
+            sys.executable,
+            str(PYLOCK_TO_REQUIREMENTS),
+            "--sdist-hashes",
+            "prefer",
+            str(pylock_path),
+            str(requirements_path),
+        ]
     else:
         pylock_path = project_dir / "uv.lock.d" / f"pylock.{flavor}.toml"
         resolved = resolve_rh_index_config(project_dir, flavor, log)
@@ -705,6 +712,50 @@ def generate_requirements_txt(
         log.warning(f"Failed to generate {requirements_path}")
         return False
     log.ok(f"requirements.{flavor}.txt generated.")
+    return True
+
+
+def uses_hermeto_pip_sdists(project_dir: Path) -> bool:
+    """True when a Konflux Dockerfile installs from the Hermeto pip cache."""
+    for dockerfile in project_dir.glob("Dockerfile.konflux.*"):
+        if not dockerfile.is_file():
+            continue
+        text = dockerfile.read_text(encoding="utf-8", errors="replace")
+        if "/cachi2/output/deps/pip" in text:
+            return True
+    return False
+
+
+def generate_requirements_build_txt(
+    project_dir: Path,
+    flavor: str,
+    log: LogBuffer,
+    python_version: str,
+) -> bool:
+    """Generate PEP 517 build requirements for sdist installs.
+
+    pybuild-deps compile() hits RecursionError on this lockfile; use the
+    cycle-safe helper that walks nested PEP 518 build-system.requires instead.
+    """
+    requirements_path = project_dir / f"requirements.{flavor}.txt"
+    output_path = project_dir / f"requirements-build.{flavor}.txt"
+    cmd = [
+        sys.executable,
+        str(ROOT_DIR / "scripts" / "lockfile-generators" / "helpers" / "generate-requirements-build.py"),
+        str(requirements_path),
+        str(output_path),
+        "--python",
+        python_version,
+    ]
+    result = subprocess.run(cmd, capture_output=True, text=True, check=False)
+    if result.stdout:
+        log.print(result.stdout.rstrip())
+    if result.stderr:
+        log.print(result.stderr.rstrip())
+    if result.returncode != 0:
+        log.warning(f"Failed to generate {output_path}")
+        return False
+    log.ok(f"requirements-build.{flavor}.txt generated.")
     return True
 
 
@@ -754,6 +805,10 @@ def process_directory(
                 dir_success = False
             elif not generate_requirements_txt(tdir, "cpu", log, public_index=True):
                 dir_success = False
+            elif uses_hermeto_pip_sdists(tdir) and not generate_requirements_build_txt(
+                tdir, "cpu", log, python_version
+            ):
+                dir_success = False
         else:
             try:
                 if not run_lock(
@@ -770,6 +825,10 @@ def process_directory(
                 ):
                     dir_success = False
                 elif not generate_requirements_txt(tdir, "cpu", log, public_index=True):
+                    dir_success = False
+                elif uses_hermeto_pip_sdists(tdir) and not generate_requirements_build_txt(
+                    tdir, "cpu", log, python_version
+                ):
                     dir_success = False
             finally:
                 if extra_constraints is not None:

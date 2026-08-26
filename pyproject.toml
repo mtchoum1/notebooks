@@ -52,6 +52,7 @@ dev = [
     # rich powers the local live progress table in ci/check-image-availability.py
     "rich>=15.0.0",
     "inline-snapshot>=0.34.2",
+    "pybuild-deps>=0.5.0",
 ]
 
 # Optional SMT backend for Hypothesis (z3 ~37MB). Not installed by default.

@@ -1,5 +1,5 @@
-# Phase 1: baseline build installs Python packages from PyPI using `requirements.${PYLOCK_FLAVOR}.txt`.
-# Hermetic Python input generation stays deferred to phase 2.
+# Phase 1: RPMs install online. Python packages are Hermeto-prefetched PyPI
+# sdists (requirements.${PYLOCK_FLAVOR}.txt + requirements-build.${PYLOCK_FLAVOR}.txt).
 
 [project]
 name = "jupyter-baseline-notebook"

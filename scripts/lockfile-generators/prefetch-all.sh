@@ -219,37 +219,47 @@ else
 fi
 
 # =========================================================================
-# Step 2: Pip wheels (create-requirements-lockfile.sh --download)
+# Step 2: Pip packages
 #
 # Resolves Python dependencies from pyproject.toml using uv, generates
-# pylock.<flavor>.toml + requirements.<flavor>.txt, then downloads all
-# wheels.  The --flavor flag selects which optional dependency groups
-# to include (e.g. cpu vs cuda have different torch/triton packages).
+# pylock + requirements.<flavor>.txt, then downloads artifacts.
+# Public-index images with requirements-build.<flavor>.txt use Hermeto in
+# sdist-only mode (uv wheels excepted; Cargo.lock mismatch). Other images
+# download wheels via download-pip-packages.py.
 # Output: cachi2/output/deps/pip/
 # =========================================================================
 PYPROJECT="$COMPONENT_DIR/pyproject.toml"
 if [[ -f "$PYPROJECT" ]]; then
-  echo "=== [2/5] Pip wheels ==="
-  # Generate lockfile + requirements.txt (no download)
-  "$SCRIPTS_PATH/create-requirements-lockfile.sh" \
-      --pyproject-toml "$PYPROJECT" --flavor "$FLAVOR"
-
   REQUIREMENTS_FILE="$COMPONENT_DIR/requirements.${FLAVOR}.txt"
-  if [[ -f "$REQUIREMENTS_FILE" ]]; then
-    # Derive target arch from BUILD_ARCH (GHA cross-build via QEMU) or host
-    if [[ -n "${BUILD_ARCH:-}" ]]; then
-      case "${BUILD_ARCH##*/}" in
-        amd64) ARCH="x86_64" ;;
-        arm64) ARCH="aarch64" ;;
-        *) ARCH="${BUILD_ARCH##*/}" ;;
-      esac
-    else
-      ARCH=$(uname -m)
-    fi
+  REQUIREMENTS_BUILD_FILE="$COMPONENT_DIR/requirements-build.${FLAVOR}.txt"
+  if [[ ! -d "$COMPONENT_DIR/uv.lock.d" ]] && [[ -f "$REQUIREMENTS_BUILD_FILE" ]]; then
+    echo "=== [2/5] Pip sdists (Hermeto) ==="
+    "$SCRIPTS_PATH/create-requirements-lockfile.sh" \
+        --pyproject-toml "$PYPROJECT" --flavor "$FLAVOR"
+    "$SCRIPTS_PATH/helpers/hermeto-fetch-pip.sh" \
+        --component-dir "$COMPONENT_DIR" --flavor "$FLAVOR"
+  else
+    echo "=== [2/5] Pip wheels ==="
+    # Generate lockfile + requirements.txt (no download)
+    "$SCRIPTS_PATH/create-requirements-lockfile.sh" \
+        --pyproject-toml "$PYPROJECT" --flavor "$FLAVOR"
 
-    # Download wheels (parallel, arch-filtered)
-    python3 "$SCRIPTS_PATH/helpers/download-pip-packages.py" \
-        --arch "$ARCH" "$REQUIREMENTS_FILE"
+    if [[ -f "$REQUIREMENTS_FILE" ]]; then
+      # Derive target arch from BUILD_ARCH (GHA cross-build via QEMU) or host
+      if [[ -n "${BUILD_ARCH:-}" ]]; then
+        case "${BUILD_ARCH##*/}" in
+          amd64) ARCH="x86_64" ;;
+          arm64) ARCH="aarch64" ;;
+          *) ARCH="${BUILD_ARCH##*/}" ;;
+        esac
+      else
+        ARCH=$(uname -m)
+      fi
+
+      # Download wheels (parallel, arch-filtered)
+      python3 "$SCRIPTS_PATH/helpers/download-pip-packages.py" \
+          --arch "$ARCH" "$REQUIREMENTS_FILE"
+    fi
   fi
   STEPS_RUN=$((STEPS_RUN + 1))
   echo ""

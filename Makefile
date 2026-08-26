@@ -104,22 +104,21 @@ define build_image
 	$(if $(findstring PARSE_FAILED,$(_BUILD_ARGS_OUT)),$(error Failed to parse $(CONF_FILE) — see stderr for details))
 	$(eval BUILD_ARGS := $(_BUILD_ARGS_OUT))
 
-# Hermetic local build: when cachi2/output/ exists AND this target uses a
-# prefetch-input tree, mount pre-downloaded deps into the build.
-# Some images (e.g. jupyter/minimal, datascience, pytorch+llmcompressor)
-# reference repo-root prefetch-input/ in their Dockerfiles without having
-# a local prefetch-input/ directory (symlinks were removed to work around
-# Konflux Hermeto rejecting symlink segments in git submodule paths).
-# The repos.d mount overlays /etc/yum.repos.d/ with hermeto-generated repos,
-# making local builds behave like Konflux (repos already in place when the
-# Dockerfile runs). The mount hides the base image's default repos.
+# Hermetic / pip-sdist local build mounts.
+# RPM-hermetic images (prefetch-input/) overlay yum.repos.d with Hermeto repos.
+# Pip-sdist images (Dockerfile references /cachi2/output/deps/pip) mount only
+# cachi2/output so dnf can still use the base image's online repos.
 # Konflux buildah-oci-ta task mounts YUM_REPOS_D_FETCHED at YUM_REPOS_D_TARGET (/etc/yum.repos.d).
 # See https://github.com/konflux-ci/build-definitions/blob/main/task/buildah-oci-ta/
 $(eval _DOCKERFILE_USES_PREFETCH := $(shell grep -q 'prefetch-input/' $(2) 2>/dev/null && echo yes))
+$(eval _DOCKERFILE_USES_CACHI2_PIP := $(shell grep -q '/cachi2/output/deps/pip' $(2) 2>/dev/null && echo yes))
 $(eval PREFETCH_INPUT_DIR := $(or $(wildcard $(BUILD_DIR)prefetch-input),$(if $(_DOCKERFILE_USES_PREFETCH),$(wildcard $(ROOT_DIR)prefetch-input),)))
-$(eval CACHI2_VOLUME := $(if $(and $(wildcard cachi2/output),$(PREFETCH_INPUT_DIR)),\
-	--volume $(ROOT_DIR)cachi2/output:/cachi2/output:Z \
+$(eval _PIP_CACHE := $(wildcard $(ROOT_DIR)cachi2/output/deps/pip))
+$(eval _CACHI2_OUTPUT_VOL := $(if $(or $(and $(filter yes,$(_DOCKERFILE_USES_CACHI2_PIP)),$(_PIP_CACHE)),$(and $(wildcard cachi2/output),$(PREFETCH_INPUT_DIR))),\
+	--volume $(ROOT_DIR)cachi2/output:/cachi2/output:Z,))
+$(eval _CACHI2_REPOS_VOL := $(if $(and $(wildcard cachi2/output),$(PREFETCH_INPUT_DIR)),\
 	--volume $(ROOT_DIR)cachi2/output/deps/rpm/$(RPM_ARCH)/repos.d/:/etc/yum.repos.d/:Z,))
+$(eval CACHI2_VOLUME := $(_CACHI2_OUTPUT_VOL) $(_CACHI2_REPOS_VOL))
 	$(info # Building $(IMAGE_NAME) using $(DOCKERFILE_NAME) with $(CONF_FILE) and $(BUILD_ARGS)...)
 
 	@if [ -n '$(PREFETCH_INPUT_DIR)' ] && [ ! -d cachi2/output ]; then \
@@ -128,6 +127,10 @@ $(eval CACHI2_VOLUME := $(if $(and $(wildcard cachi2/output),$(PREFETCH_INPUT_DI
 	fi
 	@if [ -d cachi2/output ] && [ -n '$(PREFETCH_INPUT_DIR)' ] && [ ! -d 'cachi2/output/deps/rpm/$(RPM_ARCH)/repos.d' ]; then \
 	  echo "Missing RPM repos for $(RPM_ARCH). Re-run: scripts/lockfile-generators/prefetch-all.sh --component-dir $(patsubst %/,%,$(BUILD_DIR))"; \
+	  exit 1; \
+	fi
+	@if grep -q '/cachi2/output/deps/pip' '$(2)' && [ ! -d cachi2/output/deps/pip ]; then \
+	  echo "Prefetch required for pip sdist build. Run: scripts/lockfile-generators/prefetch-all.sh --component-dir $(patsubst %/,%,$(BUILD_DIR)) -- see scripts/lockfile-generators/README.md"; \
 	  exit 1; \
 	fi
 	$(ROOT_DIR)/scripts/sandbox.py --dockerfile '$(2)' --platform '$(BUILD_ARCH)' -- \

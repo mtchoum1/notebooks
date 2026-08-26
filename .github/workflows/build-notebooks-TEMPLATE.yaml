@@ -349,9 +349,8 @@ jobs:
           with open(os.environ["GITHUB_OUTPUT"], "a") as f:
              f.write(f"CONTAINER_BUILD_CACHE_ARGS={extra_podman_build_args} {cache_args}\n")
 
-      # Hermetic builds: when the target ships a prefetch-input/ directory,
-      # download all dependencies into cachi2/output/ so the Dockerfile can
-      # build fully offline.  Targets without prefetch-input/ are unaffected.
+      # Hermetic / pip-sdist builds: prefetch when the target ships prefetch-input/
+      # or the Dockerfile installs from /cachi2/output/deps/pip. Other targets skip.
       # For RHDS/AIPCC builds (subscription: true), the --rhds flag selects the
       # downstream lockfiles and the SUBSCRIPTION_* env vars supply the RHEL
       # credentials for RPM downloads from cdn.redhat.com — secrets never
@@ -373,12 +372,12 @@ jobs:
           # Works for both Dockerfile.<flavor> and Dockerfile.konflux.<flavor> (extract last dot-separated segment).
           FLAVOR=$(echo "$DOCKERFILE" | sed -n 's/.*\.\([^.]*\)$/\1/p')
           FLAVOR=${FLAVOR:-cpu}
-          if [ -d "$COMPONENT_DIR/prefetch-input" ] || { grep -q 'prefetch-input/' "$DOCKERFILE" 2>/dev/null && [ -d prefetch-input ]; }; then
+          if [ -d "$COMPONENT_DIR/prefetch-input" ] || { grep -q 'prefetch-input/' "$DOCKERFILE" 2>/dev/null && [ -d prefetch-input ]; } || grep -q '/cachi2/output/deps/pip' "$DOCKERFILE" 2>/dev/null; then
             PREFETCH_ROOT="$COMPONENT_DIR/prefetch-input"
             if [[ ! -d "$PREFETCH_ROOT" ]]; then
               PREFETCH_ROOT="prefetch-input"
             fi
-            echo "Hermetic build detected — prefetching dependencies for $COMPONENT_DIR (prefetch root $PREFETCH_ROOT, flavor=$FLAVOR)"
+            echo "Prefetch detected — downloading dependencies for $COMPONENT_DIR (prefetch root ${PREFETCH_ROOT:-none}, flavor=$FLAVOR)"
             pip3 install --quiet --break-system-packages pyyaml packaging
             command -v uv &>/dev/null || pip3 install --quiet --break-system-packages uv
 

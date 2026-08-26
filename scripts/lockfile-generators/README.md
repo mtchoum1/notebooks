@@ -94,7 +94,7 @@ and a full walkthrough (including jupyter datascience).
 | Step                 | Condition                                                   | Script called                                                                         |
 | -------------------- | ----------------------------------------------------------- | ------------------------------------------------------------------------------------- |
 | 1. Generic artifacts | `prefetch-input/<variant>/artifacts.in.yaml` exists         | `create-artifact-lockfile.py`                                                         |
-| 2. Pip wheels        | `pyproject.toml` exists in component dir                    | `create-requirements-lockfile.sh --download`                                          |
+| 2. Pip packages      | `pyproject.toml` exists in component dir                    | `hermeto-fetch-pip.sh` (public-index + `requirements-build.<flavor>.txt`) or `download-pip-packages.py` |
 | 3. NPM packages      | Tekton PipelineRun found for component (see below)          | `download-npm.sh --tekton-file`                                                       |
 | 4. RPMs              | `prefetch-input/<variant>/rpms.in.yaml` exists              | `hermeto-fetch-rpm.sh` (if lockfile committed) or `create-rpm-lockfile.sh --download` |
 | 5. Go modules        | Tekton file has `prefetch-input` entries with `type: gomod` | `create-go-lockfile.sh --tekton-file`                                                 |
@@ -226,8 +226,10 @@ internally. Option 6 (Git submodule) is a manual setup.
 
 | Helper                                          | Used by          | Purpose                                                                                                                                                                                                                                  |
 | ----------------------------------------------- | ---------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `helpers/pylock-to-requirements.py`             | pip              | Convert `pylock.<flavor>.toml` (PEP 751) to pip-compatible `requirements.<flavor>.txt` with `--hash` lines. Omits sdist hashes when an EL9-compatible wheel exists.                                                                      |
-| `helpers/download-pip-packages.py`              | pip              | Standalone pip downloader: downloads wheels/sdists from a `requirements.txt` (with `--hash` lines) into `cachi2/output/deps/pip/`. Not called by `create-requirements-lockfile.sh` (which has its own inline download from pylock.toml). |
+| `helpers/pylock-to-requirements.py`             | pip              | Convert `pylock.<flavor>.toml` (PEP 751) to pip-compatible `requirements.<flavor>.txt` with `--hash` lines. `--sdist-hashes el9-fallback` (default, RH-index) omits sdist hashes when an EL9 wheel exists. `--sdist-hashes prefer` (public-index) always includes sdist hashes for Hermeto source-only prefetch. |
+| `helpers/download-pip-packages.py`              | pip              | Standalone pip downloader: downloads wheels/sdists from a `requirements.txt` (with `--hash` lines) into `cachi2/output/deps/pip/`. Used for RH-index images. Public-index sdist images use `hermeto-fetch-pip.sh` instead.                                                                                      |
+| `helpers/hermeto-fetch-pip.sh`                  | pip              | Prefetch Python **sdists** with [Hermeto](https://github.com/hermetoproject/hermeto). `uv` is wheel-only (`binary.packages`) because its sdist Cargo.lock is rejected by `cargo vendor --locked`. Requires `requirements-build.<flavor>.txt`. Output: `cachi2/output/deps/pip/`. |
+| `helpers/generate-requirements-build.py`        | pip              | Collect PEP 518 `build-system.requires` from runtime sdists and pin them to `requirements-build.<flavor>.txt` for Hermeto.                                                                                                                                                                                     |
 | `helpers/hermeto-fetch-rpm.sh`                  | RPM              | Download RPMs from `rpms.lock.yaml` using [Hermeto](https://github.com/hermetoproject/hermeto) in a container. Handles RHEL entitlement cert extraction for `cdn.redhat.com` auth. Called by `create-rpm-lockfile.sh --download`.        |
 | `helpers/hermeto-fetch-npm.sh`                  | npm              | Alternative npm fetcher using [Hermeto](https://github.com/hermetoproject/hermeto) in a container.                                                                                                                                       |
 | `helpers/hermeto-fetch-gomod.sh`                | Go modules       | Fetches Go dependencies from a directory with `go.mod`/`go.sum` using [Hermeto](https://github.com/hermetoproject/hermeto) in a container. Output: `cachi2/output/deps/gomod/`. Called by `create-go-lockfile.sh`.                       |
@@ -733,10 +735,16 @@ The script performs three steps:
 2. **Convert** (`helpers/pylock-to-requirements.py`) — parses the pylock.toml
   and generates `requirements.<flavor>.txt` (with `--index-url` and
    `--hash=sha256:…` lines) for compatibility with pip/uv install and cachi2
-   prefetching. Sdist hashes are omitted when an EL9-compatible wheel exists
+   prefetching. RH-index omits sdist hashes when an EL9-compatible wheel exists
    so Hermeto does not download Rust sdists and fail `cargo vendor --locked`
-   (see uv / rpds-py). The sdist hash is kept when no EL9 wheel exists
-   (e.g. ripgrep's manylinux_2_39-only wheel).
+   (see uv / rpds-py). Public-index (`--sdist-hashes prefer`) keeps sdist hashes
+   so Hermeto source-only prefetch can match artifacts. The sdist hash is also
+   kept when no EL9 wheel exists (e.g. ripgrep's manylinux_2_39-only wheel).
+   Public-index images whose Dockerfile installs from `/cachi2/output/deps/pip`
+   also generate `requirements-build.<flavor>.txt` via
+   `helpers/generate-requirements-build.py` (nested PEP 518 requires,
+   pinned with `uv pip compile`). `pybuild-deps compile` RecursionError on this
+   lockfile, so it is not used for generation.
 3. **Download** (optional, `--download`) — for local testing with podman,
   downloads every wheel referenced in the pylock.toml into
    `cachi2/output/deps/pip/`, verifying sha256 checksums.  Files already
