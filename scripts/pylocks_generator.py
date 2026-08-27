@@ -958,14 +958,10 @@ def generate_requirements_txt(
     requirements_path = project_dir / f"requirements.{flavor}.txt"
     if public_index:
         pylock_path = project_dir / "pylock.toml"
-        cmd = [
-            sys.executable,
-            str(PYLOCK_TO_REQUIREMENTS),
-            "--sdist-hashes",
-            "prefer",
-            str(pylock_path),
-            str(requirements_path),
-        ]
+        # Default --sdist-hashes el9-fallback: omit sdist hashes when an EL9 wheel
+        # exists so Hermeto does not fetch Rust sdists (uv, ripgrep) and fail
+        # cargo vendor --locked.
+        cmd = [sys.executable, str(PYLOCK_TO_REQUIREMENTS), str(pylock_path), str(requirements_path)]
     else:
         pylock_path = project_dir / "uv.lock.d" / f"pylock.{flavor}.toml"
         resolved = resolve_rh_index_config(project_dir, flavor, log)

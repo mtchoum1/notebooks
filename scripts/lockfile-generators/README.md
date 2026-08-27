@@ -754,12 +754,7 @@ at `==14.1.0` — the last PyPI release with wheels for all four Linux arches.
    prefetching. Sdist hashes are omitted when an EL9-compatible wheel exists
    so Hermeto does not download Rust sdists and fail `cargo vendor --locked`
    (see uv / rpds-py). The sdist hash is kept when no EL9 wheel exists
-   (e.g. ripgrep's manylinux_2_39-only wheel). Public-index `--sdist-hashes prefer`
-   still drops the sdist when EL9 wheels cover all four Konflux arches
-   (`x86_64`, `aarch64`, `ppc64le`, `s390x`) — otherwise Hermeto fetches
-   `uv-*.tar.gz` / `rpds_py-*.tar.gz` and rejects a Cargo.lock that does not
-   match Cargo.toml. Marker-gated packages only need EL9 wheels for the arches
-   their PEP 508 marker installs on.
+   (e.g. ripgrep's manylinux_2_39-only wheel).
 3. **Download** (optional, `--download`) — for local testing with podman,
   downloads every wheel referenced in the pylock.toml into
    `cachi2/output/deps/pip/`, verifying sha256 checksums.  Files already
