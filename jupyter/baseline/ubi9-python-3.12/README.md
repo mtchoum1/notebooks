@@ -47,4 +47,4 @@ Regenerate after Python dependency changes:
 - PR pipelines path-filter to this image (plus `jupyter/utils` and `start-notebook.sh`); they do not run on every PR
 - Manual PR trigger: `/build-jupyter-baseline` (also `/build-konflux` / `/kfbuild-all`)
 - ODH Konflux builds are hermetic (`hermetic: 'true'`) with RPM, generic, and pip prefetch
-- Push builds publish to `quay.io/opendatahub/odh-workbench-jupyter-baseline-cpu-py312-c9s`
+- Push builds (stable / `opendatahub-builds`) publish `odh-stable` and `3.6_ea2-v1.49` to `quay.io/opendatahub/odh-workbench-jupyter-baseline-cpu-py312-c9s`

@@ -53,4 +53,4 @@ make refresh-lock-files INDEX_MODE=public-index DIR=runtimes/baseline/ubi9-pytho
 - PR pipelines path-filter to this image; they do not run on every PR
 - Manual PR trigger: `/build-runtime-baseline` (also `/build-konflux` / `/kfbuild-all`)
 - ODH Konflux builds are hermetic (`hermetic: 'true'`) with RPM, generic, and pip prefetch
-- Push builds publish to `quay.io/opendatahub/odh-pipeline-runtime-baseline-cpu-py312-c9s`
+- Push builds (stable / `opendatahub-builds`) publish `odh-stable` and `3.6_ea2-v1.49` to `quay.io/opendatahub/odh-pipeline-runtime-baseline-cpu-py312-c9s`

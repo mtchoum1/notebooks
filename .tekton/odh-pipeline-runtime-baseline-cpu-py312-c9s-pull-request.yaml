@@ -13,7 +13,8 @@ metadata:
       !("manifests/base/params-latest.env".pathChanged()) &&
       (
         ".tekton/odh-pipeline-runtime-baseline-cpu-py312-c9s-pull-request.yaml".pathChanged() ||
-        "runtimes/baseline/ubi9-python-3.12/**".pathChanged()
+        "runtimes/baseline/ubi9-python-3.12/**".pathChanged() ||
+        "runtimes/baseline/ubi9-python-3.12/build-args/cpu.conf".pathChanged()
       ) && body.repository.full_name == "opendatahub-io/notebooks"
   creationTimestamp: null
   labels:
@@ -57,6 +58,7 @@ spec:
       requirements_files: [requirements.cpu.txt]
   - name: additional-tags
     value:
+    - 3.6_ea2-v1.49
     - 'odh-pr-{{revision}}'
   - name: pipeline-type
     value: pull-request
