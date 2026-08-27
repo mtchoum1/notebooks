@@ -20,8 +20,9 @@ uv sync --locked
 make jupyter-baseline-ubi9-python-3.12
 ```
 
-For ODH local builds, `build-args/cpu.conf` supplies the baseline ODH settings.
-The downstream RHOAI variant continues to use `build-args/konflux.cpu.conf`.
+For ODH local builds, `build-args/cpu.conf` uses the c9s `odh-base-image-cpu`
+(`quay.io/opendatahub/odh-base-image-cpu-py312-c9s`). The downstream RHOAI
+variant continues to use `build-args/konflux.cpu.conf`.
 
 ## Python lockfile flow
 
@@ -42,6 +43,8 @@ Regenerate after Python dependency changes:
 
 ## CI and Konflux
 
-- ODH PR PipelineRuns live under `.tekton/` (`*-c9s-pull-request.yaml`)
-- Manual PR trigger: `/build-jupyter-baseline`
+- ODH PR and push PipelineRuns live under `.tekton/` (`*-c9s-pull-request.yaml` / `*-c9s-push.yaml`)
+- PR pipelines path-filter to this image (plus `jupyter/utils` and `start-notebook.sh`); they do not run on every PR
+- Manual PR trigger: `/build-jupyter-baseline` (also `/build-konflux` / `/kfbuild-all`)
 - ODH Konflux builds are hermetic (`hermetic: 'true'`) with RPM, generic, and pip prefetch
+- Push builds publish to `quay.io/opendatahub/odh-workbench-jupyter-baseline-cpu-py312-c9s`
