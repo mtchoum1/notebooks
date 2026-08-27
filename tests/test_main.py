@@ -231,10 +231,15 @@ def test_image_pyprojects(subtests: pytest.Subtests, manifests_directory: pathli
                 pylock = tomllib.loads(file.with_name("pylock.toml").read_text())
             # Filter packages by marker against the target Python version (universal locks
             # can fork the same package into multiple entries with mutually exclusive markers).
+            # Pin platform_machine to x86_64: uv export gates public-index Jupyter deps with
+            # ``platform_machine != 'ppc64le' and != 's390x'``. Host macOS reports
+            # ``arm64``, which is not ``aarch64``, so those packages would otherwise vanish
+            # if the lock still used ``== 'x86_64' or == 'aarch64'``.
             marker_env = {
                 "python_full_version": f"{python}.0",
                 "implementation_name": "cpython",
                 "sys_platform": "linux",
+                "platform_machine": "x86_64",
             }
             pylock_packages: dict[str, dict[str, Any]] = {}
             for p in pylock["packages"]:

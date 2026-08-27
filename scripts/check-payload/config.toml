@@ -444,7 +444,9 @@ files = ["/usr/bin/launcher-v2"]
 
 # py-spy is excluded from images via exclude-dependencies (RHAIENG-58916), so
 # it never appears in a local scan; no waiver needed here.
-# pandoc-rhai 3.9.0.2 is dynamically linked (RHAIENG-5765) — no waiver needed.
+# AIPCC workbenches use dynamically linked pandoc-rhai 3.9.0.2 (RHAIENG-5765).
+# Public-index jupyter-baseline unpacks the GitHub pandoc 3.7.0.2 tarball at
+# /usr/local/pandoc (no RHAI wheel); that binary is statically linked (AIPCC-7795).
 
 # when scanning with `scan local --path`
 [[ignore]]
@@ -453,6 +455,8 @@ files = [
     # Legacy path (pre-1.122 @vscode/ripgrep). Prefer AIPCC replacement via
     # replace-aipcc-ripgrep.sh; keep waiver for residual static bins if any.
     "/usr/lib/code-server/lib/vscode/node_modules/@vscode/ripgrep/bin/rg",
+    # jupyter-baseline GitHub tarball (payload.* waivers do not match scan local)
+    "/usr/local/pandoc/bin/pandoc",
 ]
 dirs = [
     # VS Code 1.122+ @vscode/sandbox-runtime seccomp BPF loaders (no crypto)

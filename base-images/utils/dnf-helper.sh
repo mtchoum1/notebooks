@@ -1,6 +1,30 @@
 #!/usr/bin/env bash
 set -Eeuxo pipefail
 
+# Konflux buildah overlays cachi2/hermeto RPM repos at /etc/yum.repos.d when it
+# finds repos.d/cachi2.repo. In-cluster ("localhost") builds have skipped that
+# overlay, so hermetic dnf then hits the base image's mirrors.centos.org metalink
+# and fails with "Could not resolve host". Copy prefetched repos when missing.
+enable_cachi2_rpm_repos() {
+    local reposdir="/cachi2/output/deps/rpm/$(uname -m)/repos.d"
+    if [[ -f /etc/yum.repos.d/cachi2.repo || -f /etc/yum.repos.d/hermeto.repo ]]; then
+        return 0
+    fi
+    if [[ ! -d "${reposdir}" ]]; then
+        return 0
+    fi
+    shopt -s nullglob
+    local repos=("${reposdir}"/*.repo)
+    if ((${#repos[@]} == 0)); then
+        return 0
+    fi
+    echo "Prefetched RPM repos not mounted at /etc/yum.repos.d; copying from ${reposdir}"
+    rm -f /etc/yum.repos.d/*.repo
+    cp -a "${repos[@]}" /etc/yum.repos.d/
+}
+
+enable_cachi2_rpm_repos
+
 # Verified against dnf 4.14.0 on UBI9/RHEL 9.7 (dnf config-manager --dump)
 DNF_OPTS=(
     -y

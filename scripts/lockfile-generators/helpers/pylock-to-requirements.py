@@ -70,11 +70,6 @@ _MAX_EL9_GLIBC = (2, 34)
 SDIST_HASHES_EL9_FALLBACK = "el9-fallback"
 SDIST_HASHES_PREFER = "prefer"
 
-# Konflux notebook images build these four Linux arches. ``prefer`` omits the sdist
-# hash when EL9-compatible wheels cover every Konflux arch the package marker installs on.
-KONFLUX_EL9_ARCHES = frozenset({"x86_64", "aarch64", "ppc64le", "s390x"})
-_PLATFORM_MACHINE_EQ_RE = re.compile(r"platform_machine\s*==\s*['\"]([^'\"]+)['\"]")
-
 
 def strip_format_json_param(index_url: str) -> str:
     parsed = urlparse(index_url)
@@ -87,77 +82,32 @@ def strip_format_json_param(index_url: str) -> str:
     return urlunparse(parsed._replace(query=normalized_query))
 
 
-def _platform_is_el9_compatible(platform: str) -> bool:
-    """Return True if a packaging Tag.platform can install on UBI9/EL9 (glibc 2.34)."""
-    if platform == "any" or platform.startswith(("manylinux1_", "manylinux2010_", "manylinux2014_")):
-        return True
-    if platform.startswith("manylinux_"):
-        # PEP 600: manylinux_{major}_{minor}_{arch}
-        parts = platform.split("_")
-        return (
-            len(parts) >= 4
-            and parts[1].isdigit()
-            and parts[2].isdigit()
-            and (int(parts[1]), int(parts[2])) <= _MAX_EL9_GLIBC
-        )
-    return False
-
-
-def _konflux_arch_from_platform(platform: str) -> str | None:
-    """Return the Konflux arch encoded in a wheel platform tag, if any."""
-    if platform in KONFLUX_EL9_ARCHES:
-        return platform
-    for arch in KONFLUX_EL9_ARCHES:
-        if platform.endswith(f"_{arch}"):
-            return arch
-    return None
-
-
-def konflux_arches_required(marker: str) -> frozenset[str]:
-    """Return Konflux arches a package installs on, inferred from its PEP 508 marker.
-
-    ``uv export`` gates Jupyter-native deps with ``platform_machine == 'x86_64' or
-    ... == 'aarch64'``. Ungated packages (no ``platform_machine``) install on all
-    four Konflux arches, so ``prefer`` still keeps the sdist when an arch lacks
-    an EL9 wheel.
-    """
-    found = frozenset(_PLATFORM_MACHINE_EQ_RE.findall(marker)) & KONFLUX_EL9_ARCHES
-    return found or KONFLUX_EL9_ARCHES
-
-
-def wheel_el9_arches(url_or_name: str) -> frozenset[str]:
-    """Return Konflux EL9 arches this wheel can install on.
+def wheel_is_el9_compatible(url_or_name: str) -> bool:
+    """Return True if this wheel can install on UBI9/EL9 (glibc 2.34).
 
     Uses ``parse_wheel_filename`` Tag.platform values only — never the
     distribution name (e.g. a package named manylinux2010_helper).
-    ``py3-none-any`` covers every Konflux arch. musllinux / too-new manylinux
-    tags are ignored even when they share a filename with an EL9 tag.
     """
-    try:
-        *_, tags = parse_wheel_filename(url_or_name.rsplit("/", 1)[-1])
-    except InvalidWheelFilename:
-        return frozenset()
-
-    arches: set[str] = set()
-    for tag in tags:
-        platform = tag.platform
-        if not _platform_is_el9_compatible(platform):
-            continue
-        if platform == "any":
-            return KONFLUX_EL9_ARCHES
-        arch = _konflux_arch_from_platform(platform)
-        if arch is not None:
-            arches.add(arch)
-    return frozenset(arches)
-
-
-def wheel_is_el9_compatible(url_or_name: str) -> bool:
-    """Return True if this wheel can install on UBI9/EL9 (glibc 2.34)."""
     try:
         *_, tags = parse_wheel_filename(url_or_name.rsplit("/", 1)[-1])
     except InvalidWheelFilename:
         return False
-    return any(_platform_is_el9_compatible(tag.platform) for tag in tags)
+
+    for tag in tags:
+        platform = tag.platform
+        if platform == "any" or platform.startswith(("manylinux1_", "manylinux2010_", "manylinux2014_")):
+            return True
+        if platform.startswith("manylinux_"):
+            # PEP 600: manylinux_{major}_{minor}_{arch}
+            parts = platform.split("_")
+            if (
+                len(parts) >= 4
+                and parts[1].isdigit()
+                and parts[2].isdigit()
+                and (int(parts[1]), int(parts[2])) <= _MAX_EL9_GLIBC
+            ):
+                return True
+    return False
 
 
 def collect_index_hashes(pkg: dict, *, sdist_hashes: str = SDIST_HASHES_EL9_FALLBACK) -> list[str]:
@@ -170,14 +120,11 @@ def collect_index_hashes(pkg: dict, *, sdist_hashes: str = SDIST_HASHES_EL9_FALL
     """
     hashes: list[str] = []
     has_el9_wheel = False
-    covered_arches: set[str] = set()
     for whl in pkg.get("wheels", []):
         for algo, digest in whl.get("hashes", {}).items():
             hashes.append(f"--hash={algo}:{digest}")
-        url = whl.get("url", "")
-        if wheel_is_el9_compatible(url):
+        if wheel_is_el9_compatible(whl.get("url", "")):
             has_el9_wheel = True
-        covered_arches.update(wheel_el9_arches(url))
 
     include_sdist = sdist_hashes in (SDIST_HASHES_EL9_FALLBACK, SDIST_HASHES_PREFER) and not has_el9_wheel
     if include_sdist:

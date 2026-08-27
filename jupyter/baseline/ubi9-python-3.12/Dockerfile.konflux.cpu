@@ -52,22 +52,15 @@ EOF
 COPY prefetch-input/odh/rpms.lock.yaml /dev/null
 COPY prefetch-input/rhds/rpms.lock.yaml /dev/null
 
-# hadolint ignore=DL3041
-RUN /bin/bash <<'EOF'
-set -Eeuxo pipefail
-BASE_PKGS=(perl mesa-libGL skopeo compat-openssl11 openshift-clients)
-dnf install -y "${BASE_PKGS[@]}"
-dnf clean all
-rm -rf /var/cache/yum
-EOF
-
+RUN --mount=type=bind,source=base-images/utils,target=/utils,ro \
+    bash /utils/dnf-helper.sh install perl mesa-libGL skopeo compat-openssl11 openshift-clients
 
 # ppc64le/s390x: install openblas-threads (provides libopenblasp.so.0 at runtime for numpy/scipy)
-RUN /bin/bash <<'EOF'
+RUN --mount=type=bind,source=base-images/utils,target=/utils,ro \
+    /bin/bash <<'EOF'
 set -Eeuxo pipefail
 if [[ $(uname -m) == "ppc64le" ]] || [[ $(uname -m) == "s390x" ]]; then
-    dnf install -y openblas-threads
-    dnf clean all
+    bash /utils/dnf-helper.sh install openblas-threads
 fi
 EOF
 

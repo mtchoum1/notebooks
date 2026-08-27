@@ -9,9 +9,10 @@ Hermetic baseline Jupyter workbench image with Python 3.12 on UBI 9.
   `--no-index --find-links /cachi2/output/deps/pip`.
 - Keeps JupyterLab feature set (Elyra, Kale, PDF export) with a lean Python footprint.
 - **Multi-arch**: Konflux builds all four Linux arches; JupyterLab/Elyra/Kale Python deps
-  install on **x86_64 + aarch64 only** (PyPI wheel gap on ppc64le/s390x). Other arches
-  get uv/wheel/setuptools/micropipenv only. See `[tool.uv] required-environments` in
-  `pyproject.toml` and regenerated `pylock.toml` markers.
+  install on **x86_64 + aarch64 only** (PyPI wheel gap on ppc64le/s390x), using the
+  same ``platform_machine != 'ppc64le' and != 's390x'`` markers as AIPCC datascience.
+  Other arches get uv/wheel/setuptools/micropipenv only. See `[tool.uv] environments`
+  and `required-environments` in `pyproject.toml`.
 
 ## Local build
 

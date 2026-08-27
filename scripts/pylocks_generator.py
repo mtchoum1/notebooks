@@ -147,7 +147,7 @@ BASELINE_AIPCC_ALIGNMENT_SKIP_PACKAGES: frozenset[str] = frozenset(
 # Public-index baseline images: PyPI lacks ppc64le/s390x wheels for many Jupyter/native
 # packages. Gate those deps to x86_64 + aarch64; images still build on all four arches.
 BASELINE_AMD64_CLASS_MARKER = (
-    "sys_platform == 'linux' and (platform_machine == 'x86_64' or platform_machine == 'aarch64')"
+    "platform_machine != 'ppc64le' and platform_machine != 's390x'"
 )
 
 # Optimal concurrency is 5-6 based on benchmarks (macOS 12-core, RH PyPI index with
@@ -958,10 +958,14 @@ def generate_requirements_txt(
     requirements_path = project_dir / f"requirements.{flavor}.txt"
     if public_index:
         pylock_path = project_dir / "pylock.toml"
-        # Default --sdist-hashes el9-fallback: omit sdist hashes when an EL9 wheel
-        # exists so Hermeto does not fetch Rust sdists (uv, ripgrep) and fail
-        # cargo vendor --locked.
-        cmd = [sys.executable, str(PYLOCK_TO_REQUIREMENTS), str(pylock_path), str(requirements_path)]
+        cmd = [
+            sys.executable,
+            str(PYLOCK_TO_REQUIREMENTS),
+            "--sdist-hashes",
+            "prefer",
+            str(pylock_path),
+            str(requirements_path),
+        ]
     else:
         pylock_path = project_dir / "uv.lock.d" / f"pylock.{flavor}.toml"
         resolved = resolve_rh_index_config(project_dir, flavor, log)
