@@ -98,19 +98,36 @@ COPY prefetch-input/rhds/rpms.lock.yaml /dev/null
 ### BEGIN Dependencies for PDF export
 RUN ./utils/install_pdf_deps.sh
 
-# Public-index ODH cannot use pandoc-rhai (RHAI wheel). Install the EPEL
-# pandoc binary already prefetched in prefetch-input/odh/rpms.in.yaml.
-# Pre-pandoc-rhai workbenches used a GitHub tarball at /usr/local/pandoc;
-# the RPM lands on PATH as /usr/bin/pandoc.
+### END Dependencies for PDF export
+
+# Public-index ODH cannot use pandoc-rhai (RHAI wheel). Restore the
+# pre-RHAIENG-5765 tarball at /usr/local/pandoc (EPEL pandoc is not in
+# UBI/c9s dnf repos). Prefetched by Cachi2 from artifacts.in.yaml.
+ENV PATH="/usr/local/pandoc/bin:$PATH"
 RUN /bin/bash <<'EOF'
 set -Eeuxo pipefail
-dnf install -y pandoc
-dnf clean all
-rm -rf /var/cache/yum
+if [[ "$(uname -m)" == "s390x" || "$(uname -m)" == "ppc64le" ]]; then
+    echo "PDF export is not supported on $(uname -m); skipping pandoc tarball."
+    exit 0
+fi
+declare -A UNAME_TO_GOARCH
+UNAME_TO_GOARCH["x86_64"]="amd64"
+UNAME_TO_GOARCH["aarch64"]="arm64"
+ARCH="${UNAME_TO_GOARCH[$(uname -m)]}"
+PANDOC_VERSION="3.7.0.2"
+PANDOC_TGZ="/cachi2/output/deps/generic/pandoc-${PANDOC_VERSION}-linux-${ARCH}.tar.gz"
+mkdir -p /usr/local/pandoc
+if [[ -f "${PANDOC_TGZ}" ]]; then
+    tar xzvf "${PANDOC_TGZ}" --strip-components 1 -C /usr/local/pandoc/
+else
+    PANDOC_URL="https://github.com/jgm/pandoc/releases/download/${PANDOC_VERSION}/pandoc-${PANDOC_VERSION}-linux-${ARCH}.tar.gz"
+    echo "Pandoc tarball not in cachi2, downloading from ${PANDOC_URL}"
+    curl -fL "${PANDOC_URL}" -o /tmp/pandoc.tar.gz
+    tar xzf /tmp/pandoc.tar.gz --strip-components 1 -C /usr/local/pandoc/
+    rm -f /tmp/pandoc.tar.gz
+fi
 pandoc --version
 EOF
-
-### END Dependencies for PDF export
 
 COPY ${MINIMAL_SOURCE_CODE}/start-notebook.sh ./
 RUN chmod 755 ./start-notebook.sh
@@ -176,7 +193,9 @@ UV_NO_CACHE=true UV_LINK_MODE=copy UV_PREVIEW_FEATURES=pylock uv pip install --n
     --find-links /cachi2/output/deps/pip \
     --requirements=./requirements.txt
 
-pandoc --version
+if [[ "$(uname -m)" != "s390x" && "$(uname -m)" != "ppc64le" ]]; then
+    pandoc --version
+fi
 
 mkdir -p /opt/app-root/runtimes
 mkdir -p /opt/app-root/pipeline-runtimes

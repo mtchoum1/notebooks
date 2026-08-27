@@ -25,8 +25,8 @@ dependencies = [
     "nbgitpuller; sys_platform == 'linux' and (platform_machine == 'x86_64' or platform_machine == 'aarch64')",
     "odh-jupyter-trash-cleanup; sys_platform == 'linux' and (platform_machine == 'x86_64' or platform_machine == 'aarch64')",
     # PDF export needs a real pandoc binary on PATH. Do not add PyPI "pandoc"
-    # (wrapper only) or "pandoc-rhai" (RHAI index, not on PyPI). The EPEL
-    # pandoc RPM is installed in Dockerfile.konflux.cpu.
+    # (wrapper only) or "pandoc-rhai" (RHAI index, not on PyPI). The GitHub
+    # pandoc tarball is unpacked in Dockerfile.konflux.cpu.
 
     # JupyterLab datascience extensions (Elyra, Kale, widgets) without the
     # heavy workbench/db-connector Python stack.
