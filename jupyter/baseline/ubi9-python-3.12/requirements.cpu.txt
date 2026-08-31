@@ -335,10 +335,10 @@ propcache==0.5.2 ; implementation_name == 'cpython' and platform_machine != 'ppc
     --hash=sha256:be1ddfcbb376e3de5d2e2db1d58d6d67463e6b4f9f040c000de8e300295465fe
 proto-plus==1.28.4 ; implementation_name == 'cpython' and platform_machine != 'ppc64le' and platform_machine != 's390x' and sys_platform == 'linux' \
     --hash=sha256:4b01341272f8a348db3f003b6143109f83ab43091019d5181b3fcdf500ab32aa
-protobuf==7.36.0 ; implementation_name == 'cpython' and platform_machine != 'ppc64le' and platform_machine != 's390x' and sys_platform == 'linux' \
-    --hash=sha256:bf94a5917c71058262de683669bc0a797a7669d3de71f0b36d058e3194f47b44 \
-    --hash=sha256:70f5ec8eb0da81a44360c0dc0beac99a0d78071d21956a7076bae8bd2051841b \
-    --hash=sha256:53374d53fc29a67f7dbbf0ade47d7526a0f0137bf0f9c90e48d8a60790ef748c
+protobuf==6.33.6 ; implementation_name == 'cpython' and platform_machine != 'ppc64le' and platform_machine != 's390x' and sys_platform == 'linux' \
+    --hash=sha256:e2afbae9b8e1825e3529f88d514754e094278bb95eadc0e199751cdd9a2e82a2 \
+    --hash=sha256:e9db7e292e0ab79dd108d7f1a94fe31601ce1ee3f7b79e0692043423020b0593 \
+    --hash=sha256:77179e006c476e69bf8e8ce866640091ec42e1beb80b213c3900006ecfba6901
 psutil==7.2.2 ; implementation_name == 'cpython' and platform_machine != 'ppc64le' and platform_machine != 's390x' and sys_platform == 'linux' \
     --hash=sha256:076a2d2f923fd4821644f5ba89f059523da90dc9014e85f8e45a5774ca5bc6f9 \
     --hash=sha256:b0726cecd84f9474419d67252add4ac0cd9811b04d61123054b9fb6f57df6e9e \
@@ -521,8 +521,8 @@ webcolors==25.10.0 ; implementation_name == 'cpython' and platform_machine != 'p
     --hash=sha256:032c727334856fc0b968f63daa252a1ac93d33db2f5267756623c210e57a4f1d
 webencodings==0.6.1 ; implementation_name == 'cpython' and platform_machine != 'ppc64le' and platform_machine != 's390x' and sys_platform == 'linux' \
     --hash=sha256:7fab6269c8bf237c657876b52058ccb182e861518d1c695c1a9aaa8c1c105d5b
-websocket-client==1.9.2 ; implementation_name == 'cpython' and platform_machine != 'ppc64le' and platform_machine != 's390x' and sys_platform == 'linux' \
-    --hash=sha256:e1a673830a9c7bfa47b1cd3d5e4178f4c9651d80a4eab02c9c23a1c3ec6250ce
+websocket-client==1.9.1 ; implementation_name == 'cpython' and platform_machine != 'ppc64le' and platform_machine != 's390x' and sys_platform == 'linux' \
+    --hash=sha256:19a871b81d0022589dd9e8e1b1891e0516d32113837dfb987d7691b6a425a1e2
 whatthepatch==1.0.7 ; implementation_name == 'cpython' and platform_machine != 'ppc64le' and platform_machine != 's390x' and sys_platform == 'linux' \
     --hash=sha256:1b6f655fd31091c001c209529dfaabbabdbad438f5de14e3951266ea0fc6e7ed
 wheel==0.48.0 ; implementation_name == 'cpython' and sys_platform == 'linux' \

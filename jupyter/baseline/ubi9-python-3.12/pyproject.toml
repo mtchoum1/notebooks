@@ -62,7 +62,7 @@ override-dependencies = [
     # JSON recursion-depth bypass; fixed in protobuf 6.33.5.
     # AIPCC images stay on protobuf==6.31.1 (AIPCC-13675: UPB segfault on s390x
     # for 6.33.0–7.34.x). This image installs protobuf only on x86_64/aarch64.
-    "protobuf>=6.33.5; platform_machine != 'ppc64le' and platform_machine != 's390x'",
+    "protobuf>=6.33.5,<7.0; platform_machine != 'ppc64le' and platform_machine != 's390x'",
 ]
 
 [tool.uv.sources]
