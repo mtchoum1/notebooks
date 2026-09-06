@@ -7,8 +7,8 @@ resources:
   - statefulset.yaml
 images:
   - name: quay.io/opendatahub/workbench-images
-    newName: quay.io/opendatahub/workbench-images
-    newTag: jupyter-minimal-ubi9-python-3.12
+    newName: quay.io/mtchoumi-aaet/workbench-images
+    newTag: jupyter-minimal-ubi9-python-3.12-latest
 labels:
   - includeSelectors: true
     pairs:
