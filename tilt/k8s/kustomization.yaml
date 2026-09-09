@@ -1,15 +1,17 @@
 ---
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
-namePrefix: jupyter-minimal-ubi9-python-3-12-
+
+namespace: notebooks-dev
+
 resources:
-  - service.yaml
-  - statefulset.yaml
+  - namespace.yaml
+  - ../../jupyter/minimal/ubi9-python-3.12/kustomize/base
+
 images:
   - name: quay.io/mtchoumi-aaet/workbench-images
     newName: quay.io/mtchoumi-aaet/workbench-images
     newTag: jupyter-minimal-ubi9-python-3.12-latest
-labels:
-  - includeSelectors: true
-    pairs:
-      app: jupyter-minimal-ubi9-python-3-12
+
+patches:
+  - path: statefulset-patch.yaml

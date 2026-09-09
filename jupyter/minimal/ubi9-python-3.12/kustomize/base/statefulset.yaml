@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: notebook
-          image: quay.io/opendatahub/workbench-images:jupyter-minimal-ubi9-python-3.12
+          image: quay.io/mtchoumi-aaet/workbench-images:jupyter-minimal-ubi9-python-3.12-latest
           imagePullPolicy: Always
           workingDir: /opt/app-root/src
           env:

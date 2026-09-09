@@ -1,0 +1,21 @@
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: jupyter-minimal-ubi9-python-3-12-notebook
+spec:
+  template:
+    spec:
+      containers:
+        - name: notebook
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: NOTEBOOK_ARGS
+              value: |-
+                --ServerApp.port=8888
+                --ServerApp.token=''
+                --ServerApp.password=''
+                --ServerApp.quit_button=False
+          readinessProbe:
+            httpGet:
+              path: /api
