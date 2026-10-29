@@ -165,7 +165,7 @@ COPY --from=mongocli-builder /tmp/mongocli /opt/app-root/bin/
 # hadolint ignore=DL3002
 # Python install as 1001:0 with umask 0002; site-packages fixup via ensure-openshift-site-packages.sh
 COPY ${UNIVERSAL_SOURCE_CODE}/requirements.${PYLOCK_FLAVOR}.txt ./requirements.txt
-COPY --chown=1001:0 ${UNIVERSAL_SOURCE_CODE}/setup-elyra.sh ${UNIVERSAL_SOURCE_CODE}/setup-kale.sh ${UNIVERSAL_SOURCE_CODE}/utils ./utils/
+COPY --chown=1001:0 ${UNIVERSAL_SOURCE_CODE}/setup-elyra.sh ${UNIVERSAL_SOURCE_CODE}/setup-kale.sh ${UNIVERSAL_SOURCE_CODE}/setup-persistent-packages.sh ${UNIVERSAL_SOURCE_CODE}/utils ./utils/
 COPY --chown=1001:0 prefetch-input/elyra-v4.3.1/elyra/kfp/bootstrapper.py /opt/app-root/bin/utils/bootstrapper.py
 COPY --chown=1001:0 --chmod=0755 ${UNIVERSAL_SOURCE_CODE}/entrypoint-universal.sh /opt/app-root/bin/entrypoint-universal.sh
 
@@ -185,7 +185,12 @@ UV_NO_CACHE=true UV_LINK_MODE=copy UV_PREVIEW_FEATURES=pylock uv pip install --n
     --find-links /cachi2/output/deps/pip \
     --requirements=./requirements.txt
 
-# uv and uvx are only needed while building the image.
+# uv ships a statically linked CLI that fails FIPS check-payload (see
+# docs/fips.md and TestUvAndMicropipenv in test/test_notebook.ipynb).
+# Drop the CLI *and* the Python package so a workbench user can
+# `pip install uv` into the PVC-backed PIP_PREFIX and get a working binary.
+# Re-enable shipping the CLI once uv obtains a FIPS exception.
+pip uninstall -y uv
 rm -f /opt/app-root/bin/uv /opt/app-root/bin/uvx
 
 # JupyterLab/Elyra/Kale install only on x86_64/aarch64 (Path B allowlist). Skip
@@ -206,6 +211,15 @@ if [[ "$(uname -m)" != "s390x" && "$(uname -m)" != "ppc64le" ]]; then
 else
     echo "JupyterLab stack is not installed on $(uname -m); skipping Jupyter post-install."
 fi
+# PVC-backed user package bridge (.pth runs on interpreter start; dirs created at workbench start)
+SITE_PACKAGES=/opt/app-root/lib/python3.12/site-packages
+install -m 0664 /opt/app-root/bin/utils/odh_workbench_persistent_packages.py \
+  "${SITE_PACKAGES}/odh_workbench_persistent_packages.py"
+install -m 0664 /opt/app-root/bin/utils/odh_workbench_persistent_packages.pth \
+  "${SITE_PACKAGES}/odh_workbench_persistent_packages.pth"
+# odh-uv-shim.sh is already under /opt/app-root/bin/utils/ from the utils COPY;
+# setup-persistent-packages.sh installs it to $HOME/.local-packages/shim/uv at start.
+chmod 0755 /opt/app-root/bin/utils/odh-uv-shim.sh
 /usr/local/bin/ensure-openshift-site-packages.sh
 EOF
 

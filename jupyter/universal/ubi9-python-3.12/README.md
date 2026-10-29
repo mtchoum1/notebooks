@@ -40,8 +40,42 @@ Entrypoint: `/opt/app-root/bin/entrypoint-universal.sh`.
 
 | Mode | How it is selected | What runs |
 |------|--------------------|-----------|
-| **Workbench** | No args, or arg is `start-notebook.sh` (controller sets `NOTEBOOK_ARGS`) | `/opt/app-root/bin/start-notebook.sh` → JupyterLab; sources `setup-elyra.sh` / `setup-kale.sh` |
-| **Pipeline runtime** | First arg is `runtime`, **or** arbitrary command override (typical Elyra `bootstrapper.py`) | `python /opt/app-root/bin/utils/bootstrapper.py …` or `exec "$@"` |
+| **Workbench** | No args, or arg is `start-notebook.sh` (controller sets `NOTEBOOK_ARGS`) | Sources `setup-persistent-packages.sh`, then `/opt/app-root/bin/start-notebook.sh` → JupyterLab; sources `setup-elyra.sh` / `setup-kale.sh` |
+| **Pipeline runtime** | First arg is `runtime`, **or** arbitrary command override (typical Elyra `bootstrapper.py`) | `python /opt/app-root/bin/utils/bootstrapper.py …` or `exec "$@"` (no persistent-packages setup) |
+
+## Persistent user packages (workbench)
+
+Only `/opt/app-root/src` (home) is on the workbench PVC. A plain `pip install`
+into `/opt/app-root` would be lost on stop/start, and `pip install --user` is
+blocked inside the image venv.
+
+In **workbench** mode the entrypoint configures a PVC-backed pip prefix:
+
+| Item | Value |
+|------|--------|
+| Prefix | `$HOME/.local-packages` (`ODH_PERSISTENT_PACKAGES_ROOT` to override) |
+| `PIP_PREFIX` | Same path — `pip install pkg` writes here, not into the image |
+| `uv` | Overrides image `UV_CONFIG_FILE` with a managed `uv.toml` that sets `[pip] prefix`, **and** installs a `shim/uv` wrapper that injects `--prefix` on `uv pip install\|uninstall\|sync` |
+| Import bridge | `odh_workbench_persistent_packages.pth` in image site-packages |
+| Shell profile | Writes `$HOME/.local-packages/env.sh` and sources it from `.bashrc` / `.profile` so JupyterLab terminals see the same prefix |
+| Opt out | `ODH_PERSISTENT_PACKAGES=0` |
+
+Why both config + shim: the base image sets `UV_CONFIG_FILE=/opt/app-root/uv.toml`
+and `VIRTUAL_ENV=/opt/app-root`, so a plain `~/.config/uv/uv.toml` is ignored and
+bare `uv pip install` would otherwise mutate the ephemeral image venv.
+
+```bash
+pip install uv                    # once — puts the uv binary on the PVC
+pip install scikit-learn          # → ~/.local-packages (PIP_PREFIX)
+uv pip install scikit-learn       # → ~/.local-packages (uv.toml + shim)
+python -c "import sklearn"        # default kernel sees PVC packages
+```
+
+`uv sync` / project `.venv` under `$HOME` is already PVC-backed.
+
+Image-provided packages stay first on `sys.path` (user installs cannot shadow
+Jupyter). For different versions of image libraries, use a nested venv under
+`$HOME` instead (see [isolated-venv-guide.md](../../../docs/isolated-venv-guide.md)).
 
 Examples (override entrypoint only when inspecting the image):
 

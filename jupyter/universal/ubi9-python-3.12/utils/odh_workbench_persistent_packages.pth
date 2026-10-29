@@ -1,0 +1,2 @@
+# PVC-backed user package prefix for the universal workbench (see setup-persistent-packages.sh).
+import odh_workbench_persistent_packages

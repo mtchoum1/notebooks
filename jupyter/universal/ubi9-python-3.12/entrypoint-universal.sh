@@ -20,6 +20,15 @@ fi
 # Runtime / command override wins over NOTEBOOK_ARGS (e.g. pipeline pods that
 # reuse a workbench env). start-notebook.sh itself reads NOTEBOOK_ARGS.
 if [ "$#" -eq 0 ] || [ "${1}" = "start-notebook.sh" ] || [ "${1}" = "${START_NOTEBOOK}" ]; then
+    # PVC-backed pip prefix for workbench mode only (not pipeline runtime).
+    # shellcheck source=/dev/null
+    if [ -f /opt/app-root/bin/utils/setup-persistent-packages.sh ]; then
+        # Exports must survive into start-notebook.sh / JupyterLab / kernels.
+        set +u
+        # shellcheck disable=SC1091
+        source /opt/app-root/bin/utils/setup-persistent-packages.sh
+        set -u
+    fi
     exec "${START_NOTEBOOK}"
 fi
 
